@@ -1,0 +1,4360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wise Integrations – Manage Payroll</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@18,400,0,0&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: #F9FAFB;
+    min-width: 768px; /* minimum usable layout width */
+    font-size: 14px;
+    color: #111827;
+    overflow-x: hidden; /* page never scrolls horizontally */
+  }
+  .icon {
+    font-family: 'Material Symbols Rounded', sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 18;
+    line-height: 1;
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .icon-18 { font-size: 18px; line-height: 18px; }
+  .icon-20 { font-size: 20px; line-height: 20px; }
+  .icon-24 { font-size: 24px; line-height: 24px; }
+
+  /* ===================== TOP BAR ===================== */
+  .topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 48px;
+    background: #fff;
+    border-bottom: 1px solid #D6DBE6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px 0 64px; /* left pad = sidebar width */
+    z-index: 100;
+  }
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    height: 100%;
+  }
+  .topbar-menu-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: 6px;
+    color: #6b7280;
+    margin-left: 4px;
+    flex-shrink: 0;
+  }
+  .topbar-menu-btn:hover { background: #f3f4f6; }
+  /* Hubstaff logo mark as SVG inline */
+  .hubstaff-mark { width: 24px; height: 24px; }
+  .topbar-timer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 12px 6px 8px;
+    margin-left: 4px;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 44px;
+    cursor: pointer;
+  }
+  .topbar-timer:hover { background: #f9fafb; }
+  .timer-text {
+    font-size: 14px;
+    font-weight: 400;
+    color: #2aa7ff;
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .topbar-icon-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #6B7280;
+  }
+  .topbar-icon-btn:hover { background: #F3F4F6; }
+  .topbar-divider {
+    width: 1px;
+    height: 24px;
+    background: #E5E7EB;
+    margin: 0 4px;
+  }
+  .avatar-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #0168DD;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  /* ===================== LAYOUT ===================== */
+  /*
+   * VIEWPORT-BOUND LAYOUT
+   * Everything below the topbar is locked to the remaining viewport height.
+   * Only the .table-wrapper scrolls (both axes). No page-level scroll.
+   */
+  .page-wrapper {
+    display: flex;
+    margin-top: 48px;
+    height: calc(100vh - 48px); /* exact viewport remainder — no page scroll */
+    overflow: hidden;
+  }
+
+  /* ===================== SIDEBAR ===================== */
+  .sidebar {
+    width: 64px;
+    background: #F3F4F6;
+    border-right: 1px solid #D6DBE6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    position: fixed;
+    top: 0;          /* starts from very top — logo aligns with topbar */
+    left: 0;
+    bottom: 0;
+    z-index: 200;    /* above topbar (z-index 100) */
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  /* Logo section — sits at topbar height, visually aligned */
+  .sidebar-logo {
+    width: 100%;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 0;
+    flex-shrink: 0;
+    border-bottom: 1px solid #D6DBE6;
+  }
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    width: 100%;
+    padding: 8px 0;
+    flex: 1;
+  }
+  .sidebar-item {
+    width: 44px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #6B7280;
+    position: relative;
+  }
+  .sidebar-item:hover { background: #E5E7EB; }
+  .sidebar-item.active {
+    background: #DBEAFE;
+    color: #0168DD;
+  }
+  .sidebar-item.active .icon { color: #0168DD; }
+  .sidebar-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 0;
+  }
+
+  /* ===================== MAIN ===================== */
+  .main-content {
+    margin-left: 64px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* critical: contain all children */
+    min-height: 0;   /* allow flex child to shrink below content size */
+  }
+
+  /* ===================== HEADER ===================== */
+  .page-header {
+    background: #fff;
+    box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0; /* always visible at top of main-content */
+  }
+  .header-wrapper {
+    display: flex;
+    align-items: center;
+    padding: 8px 20px;
+  }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 20px;
+  }
+  .page-title {
+    font-size: 24px;
+    font-weight: 300;
+    color: #111827;
+    line-height: 32px;
+  }
+  .btn-support {
+    border: 1px solid #2AA7FF;
+    background: transparent;
+    color: #2AA7FF;
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    line-height: 20px;
+  }
+  .btn-support:hover { background: #EAF6FF; }
+
+  /* Progress bar strip below header */
+  .header-progress-strip {
+    height: 16px;
+    width: 100%;
+    background: linear-gradient(90deg, #0168DD 30%, #E5E7EB 30%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ===================== BODY CONTENT ===================== */
+  .body-content {
+    display: flex;
+    gap: 24px;
+    padding: 24px;
+    flex: 1;
+    align-items: stretch; /* panels fill full height */
+    overflow: hidden;     /* contain panels — no page scroll */
+    min-height: 0;        /* allow shrink inside flex parent */
+  }
+
+  /* ===================== LEFT PANEL ===================== */
+  .left-panel {
+    width: 265px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;   /* left panel has its own scroll if content is tall */
+    min-height: 0;
+  }
+  .left-panel-title {
+    font-size: 20px;
+    font-weight: 500;
+    color: #111827;
+    line-height: 28px;
+  }
+  .vertical-tabs {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 4px 0;
+  }
+  .vtab {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 16px;
+    height: 38px;
+    cursor: pointer;
+    color: #6B7280;
+    font-size: 14px;
+    font-weight: 400;
+    border-left: 2px solid transparent;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .vtab:hover { background: #F9FAFB; }
+  .vtab.active {
+    color: #0168DD;
+    border-left-color: #0168DD;
+    background: #EAF6FF;
+    font-weight: 500;
+  }
+  .vtab .icon { font-size: 18px; flex-shrink: 0; }
+  .vtab.active .icon { color: #0168DD; }
+
+  /* Progress card */
+  .progress-card {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .progress-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .progress-card-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #111827;
+  }
+  .progress-badge {
+    background: #D4EDFF;
+    color: #0168DD;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 9999px;
+  }
+  .progress-bar-bg {
+    height: 6px;
+    background: #E5E7EB;
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: #0168DD;
+    border-radius: 9999px;
+    width: 30%;
+  }
+  .progress-items {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 4px;
+  }
+  .progress-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+  }
+  .progress-item-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #374151;
+  }
+  .progress-item-count {
+    color: #6B7280;
+    font-size: 13px;
+  }
+  .status-dot-green { color: #059669; }
+  .status-dot-yellow { color: #D97706; }
+  .status-dot-red { color: #DC2626; }
+  .status-dot-gray { color: #9CA3AF; }
+
+  /* ===================== RIGHT PANEL ===================== */
+  .right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
+    overflow: hidden; /* must NOT expand beyond available width/height */
+    min-height: 0;
+  }
+
+  /* Members settings heading */
+  .members-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .members-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .members-title {
+    font-size: 20px;
+    font-weight: 500;
+    color: #111827;
+  }
+  .members-title .icon {
+    color: #9CA3AF;
+    font-size: 18px;
+  }
+  .btn-next-run {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: 'Roboto', sans-serif;
+    font-size: 13px;
+    color: #0168DD;
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+  .btn-next-run:hover { background: #EAF6FF; }
+  .next-run-icon { font-size: 16px; color: #0168DD; }
+
+  /* Card — fills remaining right-panel height; only table-wrapper scrolls */
+  .card {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    overflow: hidden;
+    flex: 1;              /* grow to fill right-panel */
+    display: flex;
+    flex-direction: column;
+    min-height: 0;        /* allow flex child to shrink */
+  }
+  .card-description {
+    padding: 16px;
+    border-bottom: 1px solid #E5E7EB;
+    flex-shrink: 0; /* always visible — never squished by table */
+  }
+  .card-desc-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: #111827;
+    line-height: 1.4;
+    margin-bottom: 0;
+  }
+  .card-desc-sub {
+    font-size: 14px;
+    font-weight: 400;
+    color: #6B7280;
+    line-height: 20px;
+  }
+
+  /* Toolbar */
+  .table-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    gap: 8px;
+    border-bottom: 1px solid #E5E7EB;
+    flex-shrink: 0; /* always visible */
+  }
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    padding: 4px 8px;
+    width: 149px;
+    background: #fff;
+  }
+  .search-box .icon { color: #9CA3AF; font-size: 16px; }
+  .search-input {
+    border: none;
+    outline: none;
+    font-size: 13px;
+    color: #374151;
+    width: 100%;
+    font-family: 'Roboto', sans-serif;
+    background: transparent;
+  }
+  .search-input::placeholder { color: #9CA3AF; }
+  .btn-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #D1D5DB;
+    background: #fff;
+    border-radius: 6px;
+    padding: 6px 12px;
+    max-height: 32px;
+    font-size: 14px;
+    line-height: 20px;
+    color: #4b5563;
+    cursor: pointer;
+    font-family: 'Roboto', sans-serif;
+    position: relative;
+  }
+  .btn-filter:hover { background: #F9FAFB; }
+  .btn-filter .icon { font-size: 18px; line-height: 18px; color: #6b7280; }
+  /* Badge: absolute top-right corner */
+  .filter-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #0168DD;
+    border: 1px solid #ffffff;
+    color: #fff;
+    font-family: 'Roboto', sans-serif;
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 16px;
+    min-width: 18px;
+    max-width: 29px;
+    height: 16px;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+  }
+  .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  /* Pills — Figma node I785:17578;32:122189 */
+  .pill-filter {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 9999px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+    color: #6b7280;
+    cursor: pointer;
+    background: #f9fafb;
+    white-space: nowrap;
+  }
+  .pill-filter.active {
+    background: #f0f9ff;
+    border-color: #0168dd;
+    color: #0168dd;
+  }
+  .btn-cols {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #6B7280;
+    background: #fff;
+  }
+  .btn-cols:hover { background: #F9FAFB; }
+
+  /* ── Batch bar — node 785:17579 ──────────────────────────────────────
+     bg: #0168dd, justify-between, px:14px, py:0, no-wrap, gap:0
+  ─────────────────────────────────────────────────────────────────── */
+  .batch-bar {
+    background: #0168dd;
+    display: flex;
+    flex-wrap: nowrap; /* NEVER wrap — actions must always be visible */
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    gap: 0;
+    position: relative; /* anchor for the dropdown */
+    flex-shrink: 0;     /* always visible — never squished */
+    min-width: 0;
+  }
+
+  /* Left group: pill + select-all — py:6px, gap:12px */
+  .batch-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 0;
+    flex-shrink: 0;
+  }
+
+  /* "N selected ×" pill — bg:#d4edff, rounded-full */
+  .batch-pill {
+    background: #d4edff;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .batch-pill__label {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+    color: #0a4b96;
+    padding: 0 8px;
+    white-space: nowrap;
+    text-align: center;
+  }
+  /* Close button inside pill: 16×16px, pr:4px */
+  .batch-pill__close {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-right: 4px;
+    border-radius: 9999px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .batch-pill__close .icon {
+    font-size: 12px;
+    line-height: 12px;
+    color: #0168dd;
+  }
+  .batch-pill__close:hover { background: rgba(10,75,150,0.1); }
+
+  /* "Select all (N)" — NO BORDER, white text, px:12px py:6px max-h:32px */
+  .batch-select-all {
+    background: transparent;
+    border: none;                 /* ← no border per Figma */
+    color: #ffffff;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    padding: 6px 12px;
+    max-height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .batch-select-all:hover { background: rgba(255,255,255,0.15); }
+
+  /* Right group: 3 action buttons + more_vert — py:4px, gap:10px */
+  .batch-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 0;
+    flex-shrink: 0;
+  }
+
+  /* Action buttons: download icon + white text, no border */
+  .batch-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    padding: 6px 12px;
+    max-height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .batch-action-btn:hover { background: rgba(255,255,255,0.15); }
+  .batch-action-btn .icon { font-size: 18px; line-height: 18px; color: #fff; }
+
+  /* More vert icon button: 32×32px */
+  .batch-more-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .batch-more-btn:hover { background: rgba(255,255,255,0.15); }
+  .batch-more-btn .icon { font-size: 18px; line-height: 18px; color: #fff; }
+
+  /* ── Dropdown menu — node 785:17647 ───────────────────────────────────
+     bg:white, border: 1px solid #d1d5db, rounded:6px
+     shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.05)
+     Positioned absolute, top-right corner of batch bar
+  ─────────────────────────────────────────────────────────────────── */
+  .batch-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 14px;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    box-shadow: 0px 4px 6px -1px rgba(0,0,0,0.10), 0px 2px 4px -2px rgba(0,0,0,0.05);
+    z-index: 200;
+    min-width: 240px;
+    overflow: hidden;
+  }
+  .batch-dropdown__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    background: transparent;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .batch-dropdown__item:last-child { border-bottom: none; }
+  .batch-dropdown__item:hover { background: #f9fafb; }
+
+  /* ===================== TABLE ===================== */
+
+  /*
+   * Excel-like scroll: only .table-wrapper scrolls.
+   * Sticky columns (checkbox + member) freeze on the left.
+   * We use border-collapse:separate + border-spacing:0 so that
+   * position:sticky works reliably across all browsers — collapse
+   * is known to break sticky borders in Chrome/Safari.
+   */
+  /*
+   * TABLE WRAPPER — the ONLY element that scrolls.
+   * flex: 1 → fills remaining card height (below toolbar, above pagination).
+   * overflow: auto → scrollbar appears on BOTH axes when content overflows.
+   * min-height: 0 → crucial for flex children: allows shrinking below content size.
+   * Scrollbar is always visible (overlay) so users know content is scrollable.
+   */
+  .table-wrapper {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;  /* both x and y */
+    min-height: 0;   /* MUST have this or flex child won't shrink */
+    width: 100%;
+    position: relative;
+  }
+  /* Always-visible scrollbars — Excel-like UX */
+  .table-wrapper::-webkit-scrollbar { height: 8px; width: 8px; }
+  .table-wrapper::-webkit-scrollbar-track { background: #f3f4f6; }
+  .table-wrapper::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+  .table-wrapper::-webkit-scrollbar-corner { background: #f3f4f6; }
+
+  table {
+    width: max-content;
+    min-width: 100%;
+    /* separate + spacing:0 is the only reliable model for sticky cells */
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+  }
+
+  /* ── Base cell borders ─────────────────────────────────────────────── */
+  th, td {
+    border-bottom: 1px solid #E5E7EB;
+    border-right: 1px solid #E5E7EB;
+  }
+  /* No top border on header row — toolbar's border-bottom already provides the divider */
+  /* No left border on first column — card's own border serves as the left boundary */
+  /* Remove right border on last column */
+  th:last-child, td:last-child { border-right: none; }
+  tbody tr:last-child td { border-bottom: none; }
+
+  /* ── th styles ─────────────────────────────────────────────────────── */
+  th {
+    padding: 8px 12px;
+    text-align: left;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+    height: 40px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: #f9fafb;
+    /* All header cells stick to the top of the scroll container */
+    position: sticky;
+    top: 0;
+    z-index: 3;
+  }
+  th .th-inner { display: flex; align-items: center; gap: 4px; }
+  .th-sort { color: #4b5563; font-size: 18px; line-height: 18px; cursor: pointer; }
+  .th-info  { color: #4b5563; font-size: 18px; line-height: 18px; }
+
+  /* ── td styles ─────────────────────────────────────────────────────── */
+  td {
+    padding: 0 8px;
+    height: 48px;
+    vertical-align: middle;
+    font-size: 13px;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: #fff;
+  }
+
+  /* ── STICKY COLUMNS ────────────────────────────────────────────────── */
+  /*
+   * Stacking order:
+   *   z-index 1 — regular (non-sticky) header cells
+   *   z-index 2 — sticky body cells (col-check, col-member)
+   *   z-index 3 — sticky HEADER cells (must be above both)
+   *
+   * Each sticky cell needs an explicit opaque background so scrolled
+   * content doesn't bleed through.
+   */
+
+  /*
+   * Z-INDEX STACKING ORDER:
+   *   auto — regular body td (not sticky)
+   *   2    — sticky body cells (col-check / col-member in tbody)
+   *   3    — sticky header cells (all th, top only)
+   *   4    — sticky CORNER cells (col-check / col-member in thead: sticky top + left)
+   */
+
+  /* Checkbox column — sticky left: 0 */
+  th.col-check,
+  td.col-check {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+  }
+  th.col-check { background: #f9fafb; z-index: 4; } /* corner: top + left */
+  td.col-check { background: #fff; }
+
+  /* Member column — sticky left: 38px (right of checkbox) */
+  th.col-member,
+  td.col-member {
+    position: sticky;
+    left: 38px;
+    z-index: 2;
+    box-shadow: 4px 0 8px -3px rgba(0, 0, 0, 0.12);
+  }
+  th.col-member { background: #f9fafb; z-index: 4; } /* corner: top + left */
+  td.col-member { background: #fff; }
+
+  /* Hover state — all cells including sticky */
+  tbody tr:hover td { background: #f9fafb; }
+  tbody tr:hover td.col-check,
+  tbody tr:hover td.col-member { background: #f9fafb; }
+
+  /* Selected rows: all cells get the selection tint */
+  tbody tr.row-selected td { background: #f0f9ff; }
+  tbody tr.row-selected td.col-check,
+  tbody tr.row-selected td.col-member { background: #f0f9ff; }
+
+  /* Selected + hovered: slightly lighter tint to acknowledge hover */
+  tbody tr.row-selected:hover td { background: #e0f0ff; }
+  tbody tr.row-selected:hover td.col-check,
+  tbody tr.row-selected:hover td.col-member { background: #e0f0ff; }
+
+  /* Column widths */
+  .col-check { width: 38px; padding: 0; text-align: center; }
+  .col-member { width: 200px; }
+  .col-status { width: 138px; }
+  .col-payinfo { width: 140px; }
+  .col-automation { width: 200px; }
+  .col-payout { width: 205px; }
+  .col-wiseupdate { width: 155px; }
+  .col-backup { width: 160px; }
+  .col-lastpayment { width: 230px; }
+  .col-timesheet { width: 160px; }
+  .col-adjustments { width: 230px; }
+  .col-overtime { width: 100px; }
+  .col-timeoff { width: 100px; }
+  .col-workbreak { width: 100px; }
+
+  /* Member cell */
+  .member-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .member-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #D1D5DB;
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .member-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .member-name { color: #2AA7FF; font-size: 14px; }
+
+  /* Status pill */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .pill-green { background: #DEF7EC; color: #03543F; }
+  .pill-blue { background: #D4EDFF; color: #0A4B96; }
+  .pill-yellow { background: #FEF3C7; color: #92400E; }
+  .pill-gray { background: #F3F4F6; color: #374151; }
+  .pill-red { background: #FEE2E2; color: #991B1B; }
+
+  /* Muted plain text (Invited, No) */
+  .text-muted { font-size: 12px; color: #9CA3AF; }
+
+  /* Adjustment pill: gray pill with icon + underlined label */
+  .adj-pills { display: flex; flex-direction: column; gap: 4px; }
+  .adj-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #F3F4F6;
+    border-radius: 9999px;
+    padding: 2px 8px 2px 4px;
+    white-space: nowrap;
+    width: fit-content;
+  }
+  .adj-pill .icon { font-size: 14px; color: #6B7280; line-height: 1; }
+  .adj-pill__text { font-size: 12px; color: #374151; font-weight: 500; text-decoration: underline; text-underline-offset: 2px; }
+
+  /* Pay info cell */
+  .cell-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .cell-main { font-size: 12px; color: #111827; font-weight: 400; }  /* same style as automation-main */
+  .cell-sub { font-size: 12px; color: #6B7280; }
+
+  /* Payment automation */
+  .automation-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .automation-main { font-size: 12px; color: #111827; }
+  .automation-sub { font-size: 12px; color: #6B7280; }
+
+  /* Payout method cell */
+  .payout-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .wise-logo {
+    display: flex;
+    align-items: center;
+    height: 20px;
+  }
+  .wise-logo svg { height: 14px; }
+  .paypal-logo {
+    display: flex;
+    align-items: center;
+    height: 20px;
+  }
+
+  /*
+   * ── INTEGRATION STATUS CELLS (nodes 785:21287 · 785:20578 · 785:18464) ──
+   * Icon colour ≠ text colour — by Figma design intent.
+   * The icon carries the semantic signal; the label is always neutral.
+   */
+
+  /* Cell wrapper: flex row, gap 4px, align-items center */
+  .status-cell {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 48px;
+    padding: 8px 10px;
+  }
+  .status-cell--pending { padding: 8px 12px; }
+
+  /* Icon colours — each variant has its own semantic hue */
+  .icon-status-updated  { color: #0168dd; font-size: 18px; line-height: 18px; }  /* primary/700  — blue  */
+  .icon-status-pending    { color: #9f580a; font-size: 18px; line-height: 18px; }  /* yellow/600 — amber */
+  .icon-status-deprecated { color: #e02424; font-size: 18px; line-height: 18px; }  /* red/600 */
+  .label-status-deprecated { font-size: 12px; font-family: 'Roboto', sans-serif; font-weight: 400; line-height: 20px; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Label colours — intentionally split from icon colours */
+  .label-status-updated  { font-size: 12px; font-family: 'Roboto', sans-serif; font-weight: 400; line-height: 20px; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }  /* gray/900 */
+  .label-status-pending  { font-size: 12px; font-family: 'Roboto', sans-serif; font-weight: 400; line-height: 20px; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }  /* gray/900 */
+  .label-status-na       { font-size: 12px; font-family: 'Roboto', sans-serif; font-weight: 400; line-height: 20px; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }  /* gray/400 — no icon */
+
+  /* Checkbox styles */
+  .checkbox-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+  .cb {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #D1D5DB;
+    border-radius: 4px;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .cb:checked {
+    background: #0168DD;
+    border-color: #0168DD;
+  }
+  .cb-checked-cell {
+    width: 16px;
+    height: 16px;
+    background: #0168DD;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     MEMBERS POPOVER  — Zone Popover component style
+  ══════════════════════════════════════════════════════════ */
+  .members-popover {
+    position: absolute;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px 0px rgba(0,0,0,0.10), 0px 2px 4px 0px rgba(0,0,0,0.05);
+    z-index: 1100;
+    min-width: 200px;
+    max-width: 280px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  /* Left arrow toward the trigger (882:105370 design) */
+    /* Arrow pointing up toward the strip (popover opens below) */
+  .members-popover::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: 20px; /* aligned toward count button (right side) */
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid #e5e7eb;
+  }
+  .members-popover::after {
+    content: '';
+    position: absolute;
+    top: -7px;
+    right: 20px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid #ffffff;
+  }
+  .members-popover__header {
+    padding: 12px 12px 6px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 24px;
+    color: #111827;
+    border-bottom: 1px solid #f3f4f6;
+    margin-bottom: 4px;
+  }
+  /* Ordered list inside the popover */
+  .members-popover__list {
+    list-style: decimal;
+    padding: 0 12px 12px 32px;
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: #374151;
+  }
+  .members-popover__list li {
+    padding: 3px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    line-height: 20px;
+    color: #374151;
+  }
+  .members-popover__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: #111827;
+    border-bottom: 1px solid #f9fafb;
+  }
+  .members-popover.hidden { display: none; }
+  .members-popover__item:last-child { border-bottom: none; }
+  .members-popover__avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #d1d5db;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     FILTER DRAWER — node 785:17602
+     340px, slides in from the right
+  ══════════════════════════════════════════════════════════ */
+  .filter-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 800;
+    background: transparent;
+  }
+  .filter-drawer-overlay { visibility: hidden; pointer-events: none; }
+  .filter-drawer-overlay.is-open { visibility: visible; pointer-events: auto; }
+  /* hide class kept for backward compat but animation takes precedence */
+  .filter-drawer.hidden { visibility: hidden; }
+
+  .filter-drawer {
+    position: fixed;
+    top: 48px;
+    right: 0;
+    bottom: 0;
+    width: 340px;
+    background: #ffffff;
+    border-top: 1px solid #e5e7eb;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.10), 0 10px 10px 0 rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    z-index: 801;
+    overflow: hidden;
+    /* Slide-in animation */
+    transform: translateX(100%);
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    visibility: hidden;
+  }
+  .filter-drawer.is-open {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  /* Drawer heading */
+  .drawer-heading {
+    display: flex;
+    align-items: center;
+    padding: 16px 16px 0;
+    flex-shrink: 0;
+  }
+  .drawer-heading-text {
+    flex: 1;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 24px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .drawer-close {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 4px;
+    color: #6b7280;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .drawer-close:hover { background: #f3f4f6; }
+  .drawer-close .icon { font-size: 16px; line-height: 16px; color: #6b7280; }
+
+  /* Drawer scrollable body */
+  .drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* Section group */
+  .drawer-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 0;
+  }
+  .drawer-section-title {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 20px;
+    color: #111827;
+  }
+  /* Divider between sections */
+  .drawer-divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 16px 0;
+  }
+
+  /* Dropdown field */
+  .drawer-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .drawer-field-label {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    font-size: 11px;
+    line-height: 1;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .drawer-field {
+    position: relative;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    height: 40px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  .drawer-field-value {
+    position: absolute;
+    left: 15px;
+    right: 27px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: #9ca3af; /* placeholder gray */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .drawer-field-value.has-value { color: #111827; font-weight: 500; }
+  .drawer-field-chevron {
+    position: absolute;
+    right: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 12px;
+    line-height: 12px;
+  }
+
+  /* Custom dropdown for drawer fields */
+  .drawer-dropdown-wrapper {
+    position: relative;
+    width: 100%;
+  }
+  .drawer-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,.10), 0 2px 4px -2px rgba(0,0,0,.05);
+    z-index: 900;
+    overflow: hidden;
+  }
+  .drawer-dropdown-menu.hidden { display: none; }
+  .drawer-dropdown-item {
+    padding: 10px 16px;
+    font-size: 14px;
+    color: #111827;
+    cursor: pointer;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+  }
+  .drawer-dropdown-item:last-child { border-bottom: none; }
+  .drawer-dropdown-item:hover { background: #f9fafb; }
+  .drawer-dropdown-item.selected { color: #0168dd; font-weight: 500; }
+
+  /* Drawer footer */
+  .drawer-footer {
+    background: #ffffff;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+    border-top: 1px solid #e5e7eb;
+  }
+  .drawer-btn-apply {
+    background: #2aa7ff;
+    border: none;
+    border-radius: 6px;
+    height: 40px;
+    width: 100%;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: #ffffff;
+    cursor: pointer;
+  }
+  .drawer-btn-apply:hover { background: #1a96ee; }
+  .drawer-btn-clear {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    height: 40px;
+    width: 100%;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: #4b5563;
+    cursor: pointer;
+  }
+  .drawer-btn-clear:hover { background: #f9fafb; }
+
+  /* ── Interactive checkbox box ── */
+  .cb-box {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid #D1D5DB;
+    border-radius: 4px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.1s, border-color 0.1s;
+    user-select: none;
+  }
+  .cb-box[data-checked="true"] {
+    background: #0168DD;
+    border-color: #0168DD;
+  }
+  /* Cursor on the whole check cell */
+  td.col-check { cursor: pointer; }
+
+  /* Pagination */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    border-top: 1px solid #E5E7EB;
+    height: 52px;
+    flex-shrink: 0; /* always visible — pinned to card bottom */
+  }
+  .pagination-info {
+    font-size: 13px;
+    color: #6B7280;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .per-page-select {
+    border: 1px solid #D1D5DB;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 12px;
+    color: #374151;
+    cursor: pointer;
+    background: #fff;
+    font-family: 'Roboto', sans-serif;
+  }
+  .pagination-pages {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .page-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    color: #374151;
+    border: none;
+    background: transparent;
+  }
+  .page-btn:hover { background: #F3F4F6; }
+  .page-btn.active {
+    background: #EAF6FF;
+    color: #0168DD;
+    font-weight: 500;
+  }
+  .page-next {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 4px 8px;
+    border: 1px solid #D1D5DB;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    color: #374151;
+    background: #fff;
+    font-family: 'Roboto', sans-serif;
+  }
+  .page-next:hover { background: #F9FAFB; }
+
+  /* Wise logo SVG */
+  .wise-wordmark { height: 12px; }
+
+  /* Page never scrolls horizontally — only .table-wrapper does */
+  html { overflow-x: hidden; }
+
+  /* ══════════════════════════════════════════════════════════════
+     MODAL — node 825:66860  "Set as no Wise update needed?"
+     Width: 410px  (370px content + 20px padding × 2)
+  ══════════════════════════════════════════════════════════════ */
+
+  /* Backdrop */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.hidden { display: none; }
+
+  /* Card */
+  .modal {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    width: 410px;
+    display: flex;
+    flex-direction: column;
+    overflow: visible; /* allow popover to overflow */
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.10), 0 10px 10px -5px rgba(0,0,0,0.04);
+  }
+
+  /* Header: pt-20px pb-10px px-20px, gap-16px */
+  .modal-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 20px 10px 20px;
+    background: #ffffff;
+    border-radius: 8px 8px 0 0; /* clip top corners without overflow:hidden on parent */
+  }
+  .modal-title {
+    flex: 1 0 0;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 26px;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .modal-close {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 9999px;
+    flex-shrink: 0;
+    color: #6b7280;
+    padding: 0;
+  }
+  .modal-close:hover { background: #f3f4f6; }
+  .modal-close .icon { font-size: 18px; line-height: 18px; color: #6b7280; }
+
+  /* Body: px-20px py-10px, gap-16px */
+  .modal-body {
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow: visible;
+    position: relative;
+  }
+
+  /* ── Members breakdown strip — node 457:164619 ── */
+  .modal-members-strip {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    position: relative;
+    z-index: 10;   /* above modal body siblings so popover clears bullets */
+  }
+  /* Overlapping avatar stack */
+  .modal-avatar-stack {
+    display: flex;
+    align-items: center;
+    height: 28px;
+  }
+  .modal-avatar-frame {
+    width: 21px;
+    height: 24px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .modal-avatar {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    font-size: 10px;
+    color: #ffffff;
+    top: 0;
+    left: 0;
+  }
+  .modal-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .modal-avatar--green { background: linear-gradient(153.91deg, #1CF1D0 19.548%, #0ECB95 90.191%); }
+  .modal-avatar--blue  { background: linear-gradient(180deg, #41C6FF 2.323%, #1F95FF 98.663%); }
+  .modal-avatar--purple { background: #a24aff; }
+  /* "N selected members" link-style text */
+  .modal-members-count {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 20px;
+    color: #111827;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    white-space: nowrap;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+
+  /* ── Bullet list ── */
+  .modal-bullets {
+    list-style: disc;
+    padding-left: 24px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 24px;
+    color: #374151;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .modal-bullets li { margin-bottom: 0; }
+
+  /* ── Consent checkbox — node 825:66994 ── */
+  .modal-consent {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px;
+    width: 100%;
+  }
+  .modal-consent-inner {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 2px 0;
+  }
+  .modal-consent-cb {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: #ffffff;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.1s, border-color 0.1s;
+  }
+  .modal-consent-cb[data-checked="true"] {
+    background: #0168dd;
+    border-color: #0168dd;
+  }
+  .modal-consent-label {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: #111827;
+    cursor: pointer;
+    flex: 1;
+  }
+
+  /* ── Footer: p-20px, gap-20px, justify-end ── */
+  .modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 20px;
+    padding: 20px;
+  }
+  /* Cancel — white bg, border #d1d5db, radius 6px */
+  .modal-btn-cancel {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: #4b5563;
+    cursor: pointer;
+    max-height: 40px;
+    display: flex;
+    align-items: center;
+  }
+  .modal-btn-cancel:hover { background: #f9fafb; }
+  /* Confirm — primary/500 #2aa7ff bg, white text, radius 6px */
+  .modal-btn-confirm {
+    background: #2aa7ff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: #ffffff;
+    cursor: pointer;
+    max-height: 40px;
+    display: flex;
+    align-items: center;
+    transition: background 0.15s, opacity 0.15s;
+  }
+  .modal-btn-confirm:not(:disabled):hover { background: #1a96ee; }
+  .modal-btn-confirm:disabled {
+    background: #2aa7ff;
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  /* Redundant overrides — both values already set above in their sections */
+  .right-panel { min-width: 0; }
+  .card { min-width: 0; }
+
+  /* Row hover — defined above in TABLE section */
+
+  /* Header strip tab indicator */
+  .header-tabs {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 20px;
+    border-bottom: 1px solid #E5E7EB;
+    margin-top: 2px;
+  }
+  .header-tab {
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #6B7280;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  .header-tab.active {
+    color: #0168DD;
+    border-bottom-color: #0168DD;
+    font-weight: 500;
+  }
+  /*
+   * RESPONSIVE COLUMN VISIBILITY
+   * On wide screens: all 14 columns render naturally. The table may still
+   * scroll horizontally for very wide content, but wider viewports will
+   * accommodate more columns without scrolling.
+   * On narrower screens: non-essential columns are hidden progressively.
+   * The page NEVER scrolls — only .table-wrapper does (both axes).
+   * Sticky columns (col-check + col-member) are always pinned on the left.
+   */
+
+  /* ≤ 1400px — drop the 3 smallest time-tracking columns */
+  @media (max-width: 1400px) {
+    .col-overtime  th, .col-overtime  td,
+    .col-timeoff   th, .col-timeoff   td,
+    .col-workbreak th, .col-workbreak td { display: none; }
+  }
+
+  /* ≤ 1200px — also hide payroll adjustments + timesheet */
+  @media (max-width: 1200px) {
+    .col-adjustments th, .col-adjustments td,
+    .col-timesheet   th, .col-timesheet   td { display: none; }
+  }
+
+  /* ≤ 1024px — also hide last payment */
+  @media (max-width: 1024px) {
+    .col-lastpayment th, .col-lastpayment td { display: none; }
+  }
+
+  /* ≤ 900px — also hide backup payout */
+  @media (max-width: 900px) {
+    .col-backup th, .col-backup td { display: none; }
+  }
+
+  /* ≤ 768px — minimal: keep checkbox, member, status, pay info, payout */
+  @media (max-width: 768px) {
+    .col-wiseupdate   th, .col-wiseupdate   td,
+    .col-automation   th, .col-automation   td { display: none; }
+  }
+
+  /* ═══════════════════════════════════════════════════
+     PRE-LAUNCH CARD
+  ═══════════════════════════════════════════════════ */
+  #prelaunch-card {
+    display: none;
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 16px;
+    background: #fff;
+    box-shadow: 0px 10px 15px 0px rgba(0,0,0,0.1), 0px 4px 6px 0px rgba(0,0,0,0.05);
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+  }
+  .pl-title-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+  }
+  .pl-title {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 24px;
+    color: #111827;
+    white-space: nowrap;
+  }
+  .pl-info-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: #6b7280;
+    position: relative;
+    line-height: 1;
+  }
+  .pl-subtitle {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: #111827;
+  }
+  .pl-divider {
+    width: 100%;
+    height: 1px;
+    background: #e5e7eb;
+    flex-shrink: 0;
+  }
+  .pl-body {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: #6b7280;
+  }
+  .pl-members-link {
+    color: #6b7280;
+    text-decoration: underline;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    padding: 0;
+    position: relative;
+  }
+
+  /* ═══════════════════════════════════════════════════
+     TOOLTIP (dark, arrow at bottom)
+  ═══════════════════════════════════════════════════ */
+  .tooltip-wrap {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 240px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .tooltip-wrap.visible { opacity: 1; pointer-events: auto; }
+  .tooltip-box {
+    background: #1f2937;
+    border-radius: 4px;
+    padding: 8px 12px;
+    box-shadow: 0px 1px 2px rgba(0,0,0,0.08);
+    width: 100%;
+  }
+  .tooltip-text {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    color: #fff;
+    text-align: center;
+  }
+  /* Down arrow (pointing toward the trigger) */
+  .tooltip-arrow {
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 8px solid #1f2937;
+    flex-shrink: 0;
+  }
+
+  /* ═══════════════════════════════════════════════════
+     POPOVER (white card, arrow at bottom)
+  ═══════════════════════════════════════════════════ */
+  .popover-wrap {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .popover-wrap.visible { opacity: 1; pointer-events: auto; }
+  .popover-box {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px;
+    width: 100%;
+    box-shadow: 0px 4px 6px 0px rgba(0,0,0,0.1), 0px 2px 4px 0px rgba(0,0,0,0.05);
+    max-height: 220px;
+    overflow-y: auto;
+  }
+  .popover-list {
+    list-style: decimal;
+    padding-left: 21px;
+    margin: 0;
+  }
+  .popover-list li {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: #374151;
+    white-space: nowrap;
+  }
+  /* Down arrow */
+  .popover-arrow {
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 8px solid #e5e7eb;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .popover-arrow::after {
+    content: '';
+    position: absolute;
+    top: -9px;
+    left: -6px;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 7px solid #fff;
+  }
+
+  /* ═══════════════════════════════════════════════════
+     MODE TOGGLE — column header indicator
+  ═══════════════════════════════════════════════════ */
+  .col-wiseupdate th .th-inner {
+    cursor: pointer;
+    user-select: none;
+  }
+  .col-wiseupdate th .th-inner:hover { color: #0168dd; }
+  #mode-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    font-family: 'Roboto', sans-serif;
+    background: #fdf6b2;
+    color: #9f580a;
+    border-radius: 4px;
+    padding: 1px 5px;
+    margin-left: 4px;
+    vertical-align: middle;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+  }
+
+  /* "Starting on" status cell */
+  .label-status-starting {
+    font-size: 12px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    line-height: 20px;
+    color: #9ca3af;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- ============================================================ TOP BAR ============================================================ -->
+<header class="topbar" data-node-id="785:17599">
+  <div class="topbar-left">
+    <!-- Hamburger menu — node I785:17599;415:14324 -->
+    <button class="topbar-menu-btn" title="Toggle menu">
+      <img src="https://www.figma.com/api/mcp/asset/3db453cc-c006-4258-b819-1d97fbf22ee6" width="16" height="16" alt="menu"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block';" />
+      <span class="icon" style="display:none;font-size:16px;color:#6b7280;">menu</span>
+    </button>
+    <!-- Timer pill — node I785:17599;40:8277 -->
+    <div class="topbar-timer" data-node-id="I785:17599;40:8277">
+      <img src="https://www.figma.com/api/mcp/asset/dc0692a4-5ac0-4bdc-afa0-cd589df82d47" width="18" height="18" alt=""
+        onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block';" />
+      <span class="icon" style="display:none;font-size:18px;color:#6b7280;line-height:18px;">timer</span>
+      <span class="timer-text">02:44:15</span>
+      <img src="https://www.figma.com/api/mcp/asset/587a95f8-977c-4bbb-bd0c-43888b370f51" width="14" height="14" alt=""
+        onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block';" />
+      <span class="icon" style="display:none;font-size:14px;color:#2aa7ff;line-height:14px;">north_east</span>
+    </div>
+  </div>
+  <div class="topbar-right" data-node-id="I785:17599;40:7793">
+    <!-- Phone 20px — node I785:17599;40:8759 -->
+    <div class="topbar-icon-btn" title="Phone">
+      <img src="https://www.figma.com/api/mcp/asset/805d974a-944c-46d8-8eb2-184c9276d122" width="20" height="20" alt=""
+        onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block';" />
+      <span class="icon" style="display:none;font-size:20px;">call</span>
+    </div>
+    <!-- Help 18px — node I785:17599;40:8291 -->
+    <div class="topbar-icon-btn" title="Help">
+      <img src="https://www.figma.com/api/mcp/asset/b5bb4770-4582-4346-baf3-5a04bdff97f0" width="18" height="18" alt=""
+        onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block';" />
+      <span class="icon" style="display:none;font-size:18px;">help_outline</span>
+    </div>
+    <!-- Notifications 18px — node I785:17599;40:7719 -->
+    <div class="topbar-icon-btn" title="Notifications">
+      <img src="https://www.figma.com/api/mcp/asset/7d855c75-a1c1-4001-8283-0b153355e43a" width="18" height="18" alt=""
+        onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block';" />
+      <span class="icon" style="display:none;font-size:18px;">notifications_none</span>
+    </div>
+    <!-- Gift 18px — node I785:17599;40:7718 -->
+    <div class="topbar-icon-btn" title="Rewards">
+      <img src="https://www.figma.com/api/mcp/asset/dfb605a9-e4d4-466e-ad62-c486b37079ec" width="18" height="18" alt=""
+        onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block';" />
+      <span class="icon" style="display:none;font-size:18px;">card_giftcard</span>
+    </div>
+    <!-- Products grid 18px — node I785:17599;40:7717 -->
+    <div class="topbar-icon-btn" title="Products">
+      <img src="https://www.figma.com/api/mcp/asset/169e423b-ca81-4060-9f48-a885a56a4eba" width="18" height="18" alt=""
+        onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block';" />
+      <span class="icon" style="display:none;font-size:18px;">apps</span>
+    </div>
+    <!-- Divider — node I785:17599;40:7716 -->
+    <div style="width:1px;height:36px;background:#E5E7EB;flex-shrink:0;"></div>
+    <!-- User avatar 25px gradient — node I785:17599;40:7714 -->
+    <div style="width:25px;height:25px;border-radius:50%;background:linear-gradient(-20deg,#a9d0e5 20%,#e3f3fc 65%);border:2px solid #fff;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;flex-shrink:0;cursor:pointer;">
+      <img src="https://www.figma.com/api/mcp/asset/89e8cff0-8658-453d-b6ed-e5ed21d51681"
+           style="width:108%;height:108%;object-fit:cover;object-position:top;" alt="User"
+           onerror="this.style.display='none';" />
+    </div>
+    <!-- Org badge: green 25×25px rounded-6px, "P" — toggles deprecated mode -->
+    <div id="profile-p-btn" onclick="toggleDeprecatedMode()" title="Toggle deprecated view" style="width:25px;height:25px;border-radius:6px;background:#31c48d;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:500;font-family:'Roboto',sans-serif;flex-shrink:0;cursor:pointer;transition:background 0.2s;">P</div>
+  </div>
+</header>
+
+<!-- ============================================================ PAGE WRAPPER ============================================================ -->
+<div class="page-wrapper">
+
+  <!-- ============================== SIDEBAR ============================== -->
+  <nav class="sidebar" data-node-id="785:17600">
+    <!-- Logo — aligns with topbar height; Figma node I785:17600;26:13056 -->
+    <!-- Logo — Hubstaff symbol only, Figma VSZkrrTwgFs3zac1kkcEuP node 1094:232285 -->
+    <div class="sidebar-logo" onclick="window.location.href='wise-email.html'" title="Back to inbox" style="cursor:pointer;">
+      <img src="https://www.figma.com/api/mcp/asset/032645d2-de77-4240-a2db-98a604013d23"
+           alt="Hubstaff" width="24" height="24"
+           style="display:block;flex-shrink:0;" />
+    </div>
+    <div class="sidebar-nav">
+      <div class="sidebar-item active" title="Dashboard">
+        <span class="icon icon-18">dashboard</span>
+      </div>
+      <div class="sidebar-item" title="Time">
+        <span class="icon icon-18">schedule</span>
+      </div>
+      <div class="sidebar-item" title="Activity">
+        <span class="icon icon-18">bar_chart</span>
+      </div>
+      <div class="sidebar-item" title="Reports">
+        <span class="icon icon-18">insert_chart_outlined</span>
+      </div>
+      <div class="sidebar-item" title="Locations">
+        <span class="icon icon-18">location_on</span>
+      </div>
+      <div class="sidebar-item" title="Tasks">
+        <span class="icon icon-18">check_box</span>
+      </div>
+      <div class="sidebar-item" title="Scheduling">
+        <span class="icon icon-18">calendar_today</span>
+      </div>
+      <div class="sidebar-item" title="Members">
+        <span class="icon icon-18">group</span>
+      </div>
+      <div class="sidebar-item" title="Reports">
+        <span class="icon icon-18">description</span>
+      </div>
+      <div class="sidebar-item" title="Payments" style="background:#DBEAFE;">
+        <span class="icon icon-18" style="color:#0168DD;">payments</span>
+      </div>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="sidebar-item" title="Integrations">
+        <span class="icon icon-18">link</span>
+      </div>
+      <div class="sidebar-item" title="Settings">
+        <span class="icon icon-18">settings</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============================== MAIN CONTENT ============================== -->
+  <main class="main-content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-wrapper">
+        <div class="header-inner">
+          <h1 class="page-title">Manage payroll</h1>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <button class="btn-support">Connect with Support</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="body-content">
+
+      <!-- ================== LEFT PANEL ================== -->
+      <div class="left-panel">
+        <div class="left-panel-title">Settings</div>
+
+        <!-- Vertical Tabs — pixel-perfect, node 785:17525 -->
+        <div data-node-id="785:17525" style="
+          background: #ffffff;
+          border: 1px solid #e5e7eb;
+          border-radius: 8px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          align-items: stretch;
+          justify-content: center;
+          padding: 4px 0;
+          width: 100%;
+          position: relative;
+        ">
+          <!-- Tab 1: Payment worflow (inactive) -->
+          <div data-node-id="I785:17525;4134:10770" style="
+            height: 38px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 8px 16px;
+            position: relative;
+            cursor: pointer;
+          ">
+            <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
+              <span class="icon" style="font-size:18px;line-height:18px;color:#6b7280;font-family:'Material Symbols Rounded',sans-serif;">monetization_on</span>
+              <p style="font-family:'Roboto',sans-serif;font-weight:400;font-size:14px;line-height:20px;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px;">Payment worflow</p>
+            </div>
+          </div>
+
+          <!-- Tab 2: Organization level settings (inactive) -->
+          <div data-node-id="I785:17525;4134:10777" style="
+            height: 38px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 8px 16px;
+            position: relative;
+            cursor: pointer;
+          ">
+            <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
+              <span class="icon" style="font-size:18px;line-height:18px;color:#6b7280;font-family:'Material Symbols Rounded',sans-serif;">corporate_fare</span>
+              <p style="font-family:'Roboto',sans-serif;font-weight:400;font-size:14px;line-height:20px;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px;">Organization level settings</p>
+            </div>
+          </div>
+
+          <!-- Tab 3: Members settings (ACTIVE)
+               Active indicator: 3×24px bar, left:0, vertically centred, #0168dd
+               Icon + label: #0168dd, Roboto 600
+          -->
+          <div data-node-id="I785:17525;4134:10784" style="
+            height: 38px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 8px 16px;
+            position: relative;
+            cursor: pointer;
+          ">
+            <!-- Active left indicator bar: 3×24px, #0168dd, border-radius 9999px -->
+            <div style="
+              position: absolute;
+              left: 0;
+              top: 50%;
+              transform: translateY(-50%);
+              width: 3px;
+              height: 24px;
+              background: #0168dd;
+              border-radius: 9999px;
+            "></div>
+            <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
+              <span class="icon" style="font-size:18px;line-height:18px;color:#0168dd;font-family:'Material Symbols Rounded',sans-serif;">account_circle</span>
+              <p style="font-family:'Roboto',sans-serif;font-weight:600;font-size:14px;line-height:20px;color:#0168dd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px;">Members settings</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wise Update Card — pixel-perfect, node 868:46424 -->
+        <div id="wise-update-card-post" style="
+          width:100%;
+          border-radius:8px;
+          overflow:hidden;
+          display:flex;
+          flex-direction:column;
+          box-shadow: 0px 10px 15px -3px rgba(0,0,0,0.1), 0px 4px 6px 0px rgba(0,0,0,0.05);
+        ">
+          <!-- Header: title + progress bar + % pill -->
+          <div style="
+            background:#fff;
+            border:1px solid #e5e7eb;
+            border-bottom:none;
+            border-radius:8px 8px 0 0;
+            padding:16px;
+            display:flex;
+            align-items:center;
+            gap:12px;
+          ">
+            <div style="display:flex;align-items:center;gap:12px;flex:1 0 0;min-width:0;">
+              <!-- Left: title group + progress bar, gap:8px between them -->
+              <div style="display:flex;flex-direction:column;gap:8px;flex:1 0 0;min-width:0;">
+                <!-- Title + deadline stacked with no gap (leading-[0] per Figma) -->
+                <div style="display:flex;flex-direction:column;gap:0;">
+                  <p onclick="switchToPreLaunch()" title="Click to return to pre-launch" style="font-family:'Roboto',sans-serif;font-weight:600;font-size:16px;line-height:24px;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;" onmouseenter="this.style.textDecoration='underline'" onmouseleave="this.style.textDecoration='none'">
+                    Wise migration
+                  </p>
+                  <p id="wise-update-date" style="font-family:'Roboto',sans-serif;font-weight:400;font-size:14px;line-height:20px;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                    By Jul 4 (52 days left)
+                  </p>
+                </div>
+                <!-- Progress bar: fill is #0f172a (slate/900), 30% -->
+                <div style="height:6px;border-radius:60px;overflow:hidden;position:relative;width:100%;">
+                  <div style="position:absolute;inset:0;background:#e5e7eb;border-radius:16px;"></div>
+                  <div id="card-progress-bar" style="position:absolute;inset:0 70% 0 0;background:#0f172a;border-radius:3px;"></div>
+                </div>
+              </div>
+              <!-- Purple pill: bg #e8d2ff, text #5427a7 -->
+              <div id="card-pct-pill" style="background:#e8d2ff;border-radius:9999px;padding:4px 12px;flex-shrink:0;">
+                <span id="card-pct-text" style="font-family:'Roboto',sans-serif;font-weight:400;font-size:14px;line-height:20px;color:#5427a7;white-space:nowrap;">30%</span>
+              </div>
+            </div>
+          </div>
+          <!-- Body: status rows -->
+          <div style="
+            background:#fff;
+            border:1px solid #e5e7eb;
+            border-top:none;
+            border-radius:0 0 8px 8px;
+            padding:0 16px;
+            display:flex;
+            flex-direction:column;
+            width:100%;
+          ">
+            <div style="display:flex;flex-direction:column;gap:2px;padding:4px 0;width:100%;">
+              <!-- Row: Updated — check icon #0168dd -->
+              <div id="card-row-updated" style="display:flex;flex-wrap:nowrap;align-items:center;padding:8px 0;width:100%;">
+                <div style="display:flex;align-items:center;gap:4px;flex:1 0 0;">
+                  <span class="icon" style="font-size:18px;color:#0168dd;line-height:18px;">check</span>
+                  <span style="font-family:'Roboto',sans-serif;font-size:14px;color:#6b7280;line-height:20px;white-space:nowrap;">Updated</span>
+                </div>
+                <div style="background:#f3f4f6;border-radius:9999px;padding:4px 8px;">
+                  <span id="card-count-updated" style="font-family:'Roboto',sans-serif;font-size:12px;color:#4b5563;line-height:16px;">6</span>
+                </div>
+              </div>
+              <div id="card-divider-1" style="width:100%;height:1px;background:#e5e7eb;"></div>
+              <!-- Row: Pending — warning icon #9f580a (hidden in deprecated mode) -->
+              <div id="card-row-pending" style="display:flex;flex-wrap:nowrap;align-items:center;padding:8px 0;width:100%;">
+                <div style="display:flex;align-items:center;gap:4px;flex:1 0 0;">
+                  <span class="icon" style="font-size:18px;color:#9f580a;line-height:18px;">warning</span>
+                  <span style="font-family:'Roboto',sans-serif;font-size:14px;color:#6b7280;line-height:20px;white-space:nowrap;">Pending</span>
+                </div>
+                <div style="background:#f3f4f6;border-radius:9999px;padding:4px 8px;">
+                  <span id="card-count-pending" style="font-family:'Roboto',sans-serif;font-size:12px;color:#4b5563;line-height:16px;">14</span>
+                </div>
+              </div>
+              <div id="card-divider-2" style="width:100%;height:1px;background:#e5e7eb;"></div>
+              <!-- Row: Deprecated — cancel icon #c81e1e (shown only in deprecated mode) -->
+              <div id="card-row-deprecated" style="display:none;flex-wrap:nowrap;align-items:center;padding:8px 0;width:100%;">
+                <div style="display:flex;align-items:center;gap:4px;flex:1 0 0;">
+                  <span class="icon" style="font-size:18px;color:#c81e1e;line-height:18px;">cancel</span>
+                  <span style="font-family:'Roboto',sans-serif;font-size:14px;color:#6b7280;line-height:20px;white-space:nowrap;">Deprecated</span>
+                </div>
+                <div style="background:#f3f4f6;border-radius:9999px;padding:4px 8px;">
+                  <span id="card-count-deprecated" style="font-family:'Roboto',sans-serif;font-size:12px;color:#4b5563;line-height:16px;">6</span>
+                </div>
+              </div>
+              <div id="card-divider-3" style="width:100%;height:1px;background:#e5e7eb;display:none;"></div>
+              <!-- Row: Not applicable — do_not_disturb_on icon #6b7280 -->
+              <div id="card-row-na" style="display:flex;flex-wrap:nowrap;align-items:center;padding:8px 0;width:100%;">
+                <div style="display:flex;align-items:center;gap:4px;flex:1 0 0;">
+                  <span class="icon" style="font-size:18px;color:#6b7280;line-height:18px;">do_not_disturb_on</span>
+                  <span style="font-family:'Roboto',sans-serif;font-size:14px;color:#6b7280;line-height:20px;white-space:nowrap;">Not applicable</span>
+                </div>
+                <div style="background:#f3f4f6;border-radius:9999px;padding:4px 8px;">
+                  <span id="card-count-na" style="font-family:'Roboto',sans-serif;font-size:12px;color:#4b5563;line-height:16px;">10</span>
+                </div>
+              </div>
+            </div>
+            <!-- Download CSV button -->
+            <button onclick="void(0)" style="
+              display:inline-flex;
+              align-items:center;
+              align-self:flex-start;
+              gap:8px;
+              padding:6px 12px;
+              margin-top:4px;
+              margin-bottom:12px;
+              background:#fff;
+              border:1px solid #d1d5db;
+              border-radius:6px;
+              cursor:pointer;
+              font-family:'Roboto',sans-serif;
+              font-size:14px;
+              font-weight:400;
+              color:#4b5563;
+              line-height:20px;
+              flex-shrink:0;
+            ">
+              <span class="icon" style="font-size:18px;color:#6b7280;line-height:18px;">download</span>
+              Download CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- ═══ PRE-LAUNCH CARD — node 1047:43896 ═══ -->
+        <div id="prelaunch-card">
+          <!-- Title row -->
+          <div class="pl-title-row">
+            <div style="display:flex;flex-direction:column;gap:0;flex:1 0 0;min-width:0;">
+              <div style="display:flex;align-items:center;gap:4px;">
+                <span class="pl-title" id="pl-title-link" onclick="switchToPostLaunch()" title="Click to see post-launch experience" style="cursor:pointer;" onmouseenter="this.style.textDecoration='underline'" onmouseleave="this.style.textDecoration='none'">Wise update</span>
+                <!-- ⓘ icon with tooltip -->
+                <button class="pl-info-btn" id="pl-info-btn" aria-label="More info">
+                  <span class="icon" style="font-size:18px;line-height:18px;">info</span>
+                  <div class="tooltip-wrap" id="pl-tooltip">
+                    <div class="tooltip-box">
+                      <p class="tooltip-text">Hubstaff is migrating to a new Wise integration. Your members will be guided through a one-time update via email and in-app notifications. No action is needed from you.</p>
+                    </div>
+                    <div class="tooltip-arrow"></div>
+                  </div>
+                </button>
+              </div>
+              <span class="pl-subtitle">Starting in 30 days (Jun 4)</span>
+            </div>
+          </div>
+          <!-- Divider -->
+          <div class="pl-divider"></div>
+          <!-- Body text -->
+          <div class="pl-body">
+            <p style="margin-bottom:0;">You have
+              <button class="pl-members-link" id="pl-members-btn">
+                70 members
+                <!-- Members popover (arrow at bottom) -->
+                <div class="popover-wrap" id="pl-popover">
+                  <div class="popover-box">
+                    <ol class="popover-list">
+                      <li>Aaron Mitchell</li>
+                      <li>Abigail Turner</li>
+                      <li>Adam Reynolds</li>
+                      <li>Alex Johnson</li>
+                      <li>Alice Walker</li>
+                      <li>Amanda Brooks</li>
+                      <li>Andrew Carter</li>
+                      <li>Angela Foster</li>
+                      <li>Anna Reed</li>
+                      <li>Anthony Bell</li>
+                      <li>Ashley Cooper</li>
+                      <li>Austin Hayes</li>
+                      <li>Brandon Griffin</li>
+                      <li>Brittany Sanders</li>
+                      <li>Carlos Rivera</li>
+                      <li>Chelsea Price</li>
+                      <li>Christopher Ross</li>
+                      <li>Cynthia Morgan</li>
+                      <li>Daniel Cox</li>
+                      <li>Diana Powell</li>
+                    </ol>
+                  </div>
+                  <div class="popover-arrow"></div>
+                </div>
+              </button>
+              who use Wise and will need to complete this update.</p>
+            <p style="margin-top:4px;">You will be able to track their progress here.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================== RIGHT PANEL ================== -->
+      <div class="right-panel">
+
+        <!-- Title row — pixel-perfect, node 785:17529 -->
+        <div data-node-id="785:17529" style="
+          display: flex;
+          gap: 12px;
+          align-items: center;
+          width: 100%;
+          margin-bottom: 16px;
+          flex-shrink: 0;
+        ">
+          <!-- Left: heading + history icon, gap 12px -->
+          <div data-node-id="I785:17529;65:229594" style="display:flex;flex:1 0 0;gap:4px;align-items:center;min-width:0;">
+            <div data-node-id="I785:17529;65:229651" style="display:flex;gap:12px;align-items:center;flex-shrink:0;">
+              <!-- Roboto 500, 20px, #111827, lh 28px -->
+              <p data-node-id="I785:17529;65:229596" style="font-family:'Roboto',sans-serif;font-weight:500;font-size:20px;line-height:28px;color:#111827;white-space:nowrap;">Members settings</p>
+              <!-- history icon btn: 20×20px circle, #6b7280 -->
+              <div data-node-id="I785:17529;65:229645" style="display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:9999px;cursor:pointer;flex-shrink:0;">
+                <span class="icon" style="font-size:18px;line-height:18px;color:#6b7280;">history</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Next run pill
+               bg: #d4edff, border-radius: 9999px, py: 4px
+               icon: currency_exchange 18px #0a4b96, pl-6px w-18px
+               text: "Next run:" Roboto 500 14px + " Mon, 13 Oct, 2025" 12px, both #0a4b96
+               font-size:0 parent trick to kill inline-block gap between spans
+          -->
+          <div data-node-id="I785:17529;65:229870" style="
+            background: #d4edff;
+            border-radius: 9999px;
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+          ">
+            <!-- Icon wrapper: pl-6px, w-18px -->
+            <div data-node-id="I785:17529;65:229870;2239:1250" style="padding-left:6px;width:18px;display:flex;align-items:flex-start;flex-shrink:0;overflow:visible;">
+              <span class="icon" data-node-id="I785:17529;65:229870;2123:3063;343:136616" style="font-size:18px;line-height:18px;color:#0a4b96;font-family:'Material Symbols Rounded',sans-serif;">currency_exchange</span>
+            </div>
+            <!-- Label: px-8px -->
+            <div data-node-id="I785:17529;65:229870;2239:1284" style="padding:0 8px;flex-shrink:0;">
+              <!-- font-size:0 parent removes gap between inline spans -->
+              <p data-node-id="I785:17529;65:229870;2123:3064" style="font-size:0;line-height:0;white-space:nowrap;text-align:center;">
+                <span style="font-family:'Roboto',sans-serif;font-weight:500;font-size:14px;line-height:20px;color:#0a4b96;">Next run:</span><span style="font-family:'Roboto',sans-serif;font-weight:400;font-size:12px;line-height:16px;color:#0a4b96;"> Mon, 13 Oct, 2025</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card -->
+        <div class="card">
+          <!-- Description -->
+          <div class="card-description">
+            <div class="card-desc-title">Select members and add the missing data below to get them ready for payroll</div>
+            <div class="card-desc-sub">To complete setup, define for each member the missing data.</div>
+          </div>
+
+          <!-- Toolbar — node 785:17578 -->
+          <div class="table-toolbar" data-node-id="785:17578">
+            <div class="toolbar-left">
+              <!-- Search input: 149px, h:32px -->
+              <div class="search-box">
+                <span class="icon" style="font-size:18px;color:#6B7280;">search</span>
+                <input class="search-input" type="text" placeholder="Search" />
+              </div>
+              <!-- Filters button: border #d1d5db, h:32px, badge top-right -->
+              <button class="btn-filter" onclick="openFilterDrawer()" data-node-id="I785:17578;32:122187">
+                <span class="icon">filter_list</span>
+                Filters
+                <span class="filter-badge" data-node-id="I785:17578;32:122187;4213:26196">1+</span>
+              </button>
+            </div>
+            <div class="toolbar-right">
+              <!-- Pills: single text node, combined count — node I785:17578;32:122189 -->
+              <div class="pill-filter active" data-node-id="I785:17578;32:122189;4243:50502">All (85)</div>
+              <div class="pill-filter" data-node-id="I785:17578;32:122189;4243:50511">Ready - manual (0)</div>
+              <div class="pill-filter" data-node-id="I785:17578;32:122189;4243:50515">Ready - automatic (0)</div>
+              <div class="pill-filter" data-node-id="I785:17578;32:122189;4243:50523">Missing data (10)</div>
+              <!-- Column picker icon button: 32×32px, border #d1d5db -->
+              <button class="btn-cols" data-node-id="I785:17578;32:122192">
+                <span class="icon" style="font-size:18px;color:#6b7280;">view_column</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Batch bar — node 785:17579 (hidden when 0 rows selected) -->
+          <div class="batch-bar" id="batch-bar" data-node-id="785:17579" style="display:none">
+
+            <!-- Left: "N selected ×" pill + "Select all (N)" button -->
+            <div class="batch-left" data-node-id="I785:17579;4514:111365">
+              <!-- Dismissible pill: bg #d4edff, text #0a4b96 -->
+              <div class="batch-pill" data-node-id="I785:17579;4514:111365;2541:11987">
+                <span class="batch-pill__label" id="batch-count">2 selected</span>
+                <!-- close/12 — color: #0168dd -->
+                <button class="batch-pill__close" onclick="clearSelection()" title="Deselect all">
+                  <span class="icon">close</span>
+                </button>
+              </div>
+              <!-- Select all — NO BORDER, white text -->
+              <button class="batch-select-all" id="batch-select-all-btn"
+                      onclick="selectAll()"
+                      data-node-id="I785:17579;4514:111365;6374:18529">
+                Select all (30)
+              </button>
+            </div>
+
+            <!-- Right: 3 action buttons + more_vert icon button -->
+            <div class="batch-right" data-node-id="I785:17579;4480:33908">
+              <!-- Edit pay -->
+              <button class="batch-action-btn" data-node-id="I785:17579;5963:43035">
+                Edit pay
+              </button>
+              <!-- Edit pay rate -->
+              <button class="batch-action-btn" data-node-id="I785:17579;5963:43057">
+                Edit pay rate
+              </button>
+              <!-- Manage primary payout method -->
+              <button class="batch-action-btn" data-node-id="I785:17579;5963:43046">
+                Manage primary payout method
+              </button>
+              <!-- more_vert: 32×32px icon button -->
+              <button class="batch-more-btn" id="more-btn"
+                      onclick="toggleDropdown(event)"
+                      data-node-id="I785:17579;5963:43372">
+                <span class="icon">more_vert</span>
+              </button>
+            </div>
+
+            <!-- Dropdown menu — node 785:17647 (hidden by default) -->
+            <div class="batch-dropdown" id="more-dropdown" style="display:none"
+                 data-node-id="785:17647">
+              <button class="batch-dropdown__item" data-node-id="785:17651">Manage backup payout method</button>
+              <button class="batch-dropdown__item" data-node-id="785:17652">Remove primary payout method</button>
+              <button class="batch-dropdown__item" data-node-id="785:17653">Remove backup payout method</button>
+              <button class="batch-dropdown__item" data-node-id="785:17654">Manage timesheet approval</button>
+              <button class="batch-dropdown__item" data-node-id="785:17655" onclick="openModal()">Set as no Wise update needed</button>
+              <button class="batch-dropdown__item" data-node-id="785:17656">Manage payroll adjustments</button>
+              <button class="batch-dropdown__item" data-node-id="785:17657">Manage overtime policy</button>
+              <button class="batch-dropdown__item" data-node-id="785:17658">Manage time off policy</button>
+              <button class="batch-dropdown__item" data-node-id="785:17659">Manage work breaks policy</button>
+            </div>
+
+          </div>
+
+          <!-- Table -->
+          <div class="table-wrapper">
+            <table>
+              <colgroup>
+                <col class="col-check" />
+                <col class="col-member" />
+                <col class="col-status" />
+                <col class="col-payinfo" />
+                <col class="col-automation" />
+                <col class="col-payout" />
+                <col class="col-wiseupdate" />
+                <col class="col-backup" />
+                <col class="col-lastpayment" />
+                <col class="col-timesheet" />
+                <col class="col-adjustments" />
+                <col class="col-overtime" />
+                <col class="col-timeoff" />
+                <col class="col-workbreak" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <!-- checkbox col — node I785:17583;896:78837 -->
+                  <th class="col-check" onclick="toggleAll()" style="cursor:pointer;padding:8px 12px;" data-node-id="I785:17583;896:78837">
+                    <div class="checkbox-wrap">
+                      <div class="cb-box" id="cb-header" data-checked="false"></div>
+                    </div>
+                  </th>
+                  <!-- Member — semibold 14px #1f2937 + sort ↑ — node I785:17583;896:78839 -->
+                  <th class="col-member" data-node-id="I785:17583;896:78839">
+                    <div class="th-inner">
+                      Member
+                      <span class="icon th-sort">arrow_upward_alt</span>
+                    </div>
+                  </th>
+                  <!-- Payroll status — node I785:17583;896:78841 -->
+                  <th class="col-status" data-node-id="I785:17583;896:78841">
+                    <div class="th-inner">
+                      Payroll status
+                      <span class="icon th-sort">arrow_upward_alt</span>
+                    </div>
+                  </th>
+                  <!-- Pay info — node I785:17583;896:78842 -->
+                  <th class="col-payinfo" data-node-id="I785:17583;896:78842">
+                    <div class="th-inner">
+                      Pay info
+                      <span class="icon th-sort">arrow_upward_alt</span>
+                    </div>
+                  </th>
+                  <!-- Payment automation — node I785:17583;896:78843 -->
+                  <th class="col-automation" data-node-id="I785:17583;896:78843">Payment automation</th>
+                  <!-- Primary payout method ℹ — node I785:17583;911:118514 -->
+                  <th class="col-payout" data-node-id="I785:17583;911:118514">
+                    <div class="th-inner">
+                      Primary payout method
+                      <span class="icon th-info">info</span>
+                    </div>
+                  </th>
+                  <!-- Wise update ℹ — node I785:17583;896:78844 -->
+                  <th class="col-wiseupdate" data-node-id="I785:17583;896:78844">
+                    <div class="th-inner" onclick="toggleMode()" title="Click to toggle pre/post launch">
+                      Wise update
+                      <span class="icon th-info">info</span>
+                    </div>
+                  </th>
+                  <!-- Backup payout method ℹ — node I785:17583;900:160462 -->
+                  <th class="col-backup" data-node-id="I785:17583;900:160462">
+                    <div class="th-inner">
+                      Backup payout method
+                      <span class="icon th-info">info</span>
+                    </div>
+                  </th>
+                  <!-- Last Payment — node I873:49601;896:78857 -->
+                  <th class="col-lastpayment" data-node-id="I873:49601;896:78857">Last Payment</th>
+                  <!-- Timesheet approval — node I873:49601;896:78858 -->
+                  <th class="col-timesheet" data-node-id="I873:49601;896:78858">Timesheet approval</th>
+                  <!-- Payroll Adjustments — node I873:49601;896:78859 -->
+                  <th class="col-adjustments" data-node-id="I873:49601;896:78859">Payroll Adjustments</th>
+                  <!-- Overtime — node I873:49601;896:78860 -->
+                  <th class="col-overtime" data-node-id="I873:49601;896:78860">Overtime</th>
+                  <!-- Time off — node I873:49601;896:78861 -->
+                  <th class="col-timeoff" data-node-id="I873:49601;896:78861">Time off</th>
+                  <!-- Work break — node I873:49601;896:78862 -->
+                  <th class="col-workbreak" data-node-id="I873:49601;896:78862">Work break</th>
+                </tr>
+              </thead>
+              <tbody id="members-tbody">
+                <!-- Row 1: Liam Johnson – checked -->
+                <tr data-row="0">
+                  <td class="col-check" onclick="toggleRow(0)">
+                    <div class="checkbox-wrap">
+                      <div class="cb-box" id="cb-0" data-checked="false"></div>
+                    </div>
+                  </td>
+                  <td class="col-member">
+                    <div class="member-cell">
+                      <div class="member-avatar" style="background:#7C3AED;">
+                        <img src="https://www.figma.com/api/mcp/asset/b04cea42-ccbf-48d6-bead-53856776548c" alt="Liam Johnson" onerror="this.style.display='none';this.parentElement.textContent='LJ';" />
+                      </div>
+                      <span class="member-name">Liam Johnson</span>
+                    </div>
+                  </td>
+                  <td class="col-status"><span class="pill pill-green">Ready (automatic)</span></td>
+                  <td class="col-payinfo">
+                    <div class="cell-stack">
+                      <span class="cell-main">Fixed</span>
+                      <span class="cell-sub">$1,500/wk · Every Friday</span>
+                    </div>
+                  </td>
+                  <td class="col-automation">
+                    <div class="automation-cell">
+                      <span class="automation-main">Automatic</span>
+                      <span class="automation-sub">Weekly</span>
+                    </div>
+                  </td>
+                  <td class="col-payout">
+                    <div class="payout-cell">
+                      <!-- Wise logo -->
+                      <!-- Wise logo — node 785:21203, h:10px w:46px -->
+                      <img src="https://www.figma.com/api/mcp/asset/31d8461a-ec87-4583-8523-522a8f450b92"
+                        width="46" height="10" alt="Wise" style="display:block;flex-shrink:0;"
+                        onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='block';" />
+                      <span style="display:none;font-size:12px;font-weight:800;color:#163300;letter-spacing:-0.5px;">wise</span>
+                      <span class="pill pill-blue" style="font-size:11px;padding:1px 7px;">Connected</span>
+                    </div>
+                  </td>
+                  <td class="col-wiseupdate">
+                    <!-- Updated: icon #0168dd (primary/700), text #111827 (gray/900) -->
+                    <div class="status-cell" data-node-id="785:21288">
+                      <span class="icon icon-status-updated" data-node-id="I785:21293;343:136462">check</span>
+                      <p class="label-status-updated" data-node-id="785:21294">Updated</p>
+                    </div>
+                  </td>
+                  <td class="col-backup"><span style="color:#9CA3AF;font-size:12px;">None</span></td>
+                  <td class="col-lastpayment"><span style="font-size:12px;color:#111827;">Mar 15, 2025</span></td>
+                  <td class="col-timesheet"><span class="pill pill-gray">Yes</span></td>
+                  <td class="col-adjustments"><div class="adj-pills"><span class="adj-pill"><span class="icon">add_circle</span><span class="adj-pill__text">1 addition</span></span></div></td>
+                  <td class="col-overtime"><span class="pill pill-gray">1 active</span></td>
+                  <td class="col-timeoff"><span class="pill pill-gray">4 active</span></td>
+                  <td class="col-workbreak"><span class="pill pill-gray">4 active</span></td>
+                </tr>
+
+                <!-- Row 2: Emma Davis – checked -->
+                <tr data-row="1">
+                  <td class="col-check" onclick="toggleRow(1)">
+                    <div class="checkbox-wrap">
+                      <div class="cb-box" id="cb-1" data-checked="false"></div>
+                    </div>
+                  </td>
+                  <td class="col-member">
+                    <div class="member-cell">
+                      <div class="member-avatar" style="background:#2563EB;">
+                        <img src="https://www.figma.com/api/mcp/asset/7c89a03c-0e62-4b0d-a1cf-a9f4e547c36b" alt="Emma Davis" onerror="this.style.display='none';this.parentElement.textContent='ED';" />
+                      </div>
+                      <span class="member-name">Emma Davis</span>
+                    </div>
+                  </td>
+                  <td class="col-status"><span class="pill pill-green">Ready (manual)</span></td>
+                  <td class="col-payinfo">
+                    <div class="cell-stack">
+                      <span class="cell-main">Fixed</span>
+                      <span class="cell-sub">$5,000/mo · 4th of month</span>
+                    </div>
+                  </td>
+                  <td class="col-automation">
+                    <div class="automation-cell">
+                      <span class="automation-main">Manual</span>
+                      <span class="automation-sub">Monthly — 4th</span>
+                    </div>
+                  </td>
+                  <td class="col-payout">
+                    <div class="payout-cell">
+                      <!-- Wise logo — node 785:21203, h:10px w:46px -->
+                      <img src="https://www.figma.com/api/mcp/asset/31d8461a-ec87-4583-8523-522a8f450b92"
+                        width="46" height="10" alt="Wise" style="display:block;flex-shrink:0;"
+                        onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='block';" />
+                      <span style="display:none;font-size:12px;font-weight:800;color:#163300;letter-spacing:-0.5px;">wise</span>
+                      <span class="pill pill-blue" style="font-size:11px;padding:1px 7px;">Connected</span>
+                    </div>
+                  </td>
+                  <td class="col-wiseupdate">
+                    <!-- Updated: icon #0168dd (primary/700), text #111827 (gray/900) -->
+                    <div class="status-cell" data-node-id="785:21288">
+                      <span class="icon icon-status-updated" data-node-id="I785:21293;343:136462">check</span>
+                      <p class="label-status-updated" data-node-id="785:21294">Updated</p>
+                    </div>
+                  </td>
+                  <td class="col-backup"><span style="color:#9CA3AF;font-size:12px;">None</span></td>
+                  <td class="col-lastpayment"><span style="font-size:12px;color:#111827;">Mar 15, 2025</span></td>
+                  <td class="col-timesheet"><span class="text-muted">No</span></td>
+                  <td class="col-adjustments"><div class="adj-pills"><span class="adj-pill"><span class="icon">add_circle</span><span class="adj-pill__text">1 addition</span></span></div></td>
+                  <td class="col-overtime"><span class="pill pill-gray">4 active</span></td>
+                  <td class="col-timeoff"><span class="text-muted">—</span></td>
+                  <td class="col-workbreak"><span class="pill pill-gray">3 active</span></td>
+                </tr>
+
+                <!-- Row 3: Ethan Smith -->
+                <tr data-row="2">
+                  <td class="col-check" onclick="toggleRow(2)">
+                    <div class="checkbox-wrap">
+                      <div class="cb-box" id="cb-2" data-checked="false"></div>
+                    </div>
+                  </td>
+                  <td class="col-member">
+                    <div class="member-cell">
+                      <div class="member-avatar" style="background:#059669;">
+                        <img src="https://www.figma.com/api/mcp/asset/a79b5156-a483-4ee3-a07f-9b5cc6fce75d" alt="Ethan Smith" onerror="this.style.display='none';this.parentElement.textContent='ES';" />
+                      </div>
+                      <span class="member-name">Ethan Smith</span>
+                    </div>
+                  </td>
+                  <td class="col-status"><span class="pill pill-green">Ready (automatic)</span></td>
+                  <td class="col-payinfo">
+                    <div class="cell-stack">
+                      <span class="cell-main">Fixed</span>
+                      <span class="cell-sub">$5,200/mo · 4th of month</span>
+                    </div>
+                  </td>
+                  <td class="col-automation">
+                    <div class="automation-cell">
+                      <span class="automation-main">Manual</span>
+                      <span class="automation-sub">Monthly — 4th</span>
+                    </div>
+                  </td>
+                  <td class="col-payout">
+                    <div class="payout-cell">
+                      <!-- Wise logo — node 785:21203, h:10px w:46px -->
+                      <img src="https://www.figma.com/api/mcp/asset/31d8461a-ec87-4583-8523-522a8f450b92"
+                        width="46" height="10" alt="Wise" style="display:block;flex-shrink:0;"
+                        onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='block';" />
+                      <span style="display:none;font-size:12px;font-weight:800;color:#163300;letter-spacing:-0.5px;">wise</span>
+                      <span class="pill pill-blue" style="font-size:11px;padding:1px 7px;">Connected</span>
+                    </div>
+                  </td>
+                  <td class="col-wiseupdate" data-wise-status="pending">
+                    <!-- Pending: icon #9f580a (yellow/600) -->
+                    <div class="status-cell status-cell--pending">
+                      <span class="icon icon-status-pending">warning</span>
+                      <p class="label-status-pending">Pending</p>
+                    </div>
+                  </td>
+                  <td class="col-backup"><span style="color:#9CA3AF;font-size:12px;">None</span></td>
+                  <td class="col-lastpayment"><span style="font-size:12px;color:#111827;">Mar 15, 2025</span></td>
+                  <td class="col-timesheet"><span class="pill pill-gray">Yes</span></td>
+                  <td class="col-adjustments"><div class="adj-pills"><span class="adj-pill"><span class="icon">add_circle</span><span class="adj-pill__text">1 addition</span></span><span class="adj-pill"><span class="icon">do_not_disturb_on</span><span class="adj-pill__text">1 deduction</span></span></div></td>
+                  <td class="col-overtime"><span class="pill pill-gray">4 active</span></td>
+                  <td class="col-timeoff"><span class="pill pill-gray">1 active</span></td>
+                  <td class="col-workbreak"><span class="pill pill-gray">4 active</span></td>
+                </tr>
+
+                <!-- Row 4: Noah Wilson -->
+                <tr data-row="3">
+                  <td class="col-check" onclick="toggleRow(3)">
+                    <div class="checkbox-wrap">
+                      <div class="cb-box" id="cb-3" data-checked="false"></div>
+                    </div>
+                  </td>
+                  <td class="col-member">
+                    <div class="member-cell">
+                      <div class="member-avatar" style="background:#DC2626;">
+                        <img src="https://www.figma.com/api/mcp/asset/b3592202-ec9c-46bd-ba2a-0df3bf0670bc" alt="Noah Wilson" onerror="this.style.display='none';this.parentElement.textContent='NW';" />
+                      </div>
+                      <span class="member-name">Noah Wilson</span>
+                    </div>
+                  </td>
+                  <td class="col-status"><span class="pill pill-green">Ready (automatic)</span></td>
+                  <td class="col-payinfo">
+                    <div class="cell-stack">
+                      <span class="cell-main">Fixed</span>
+                      <span class="cell-sub">$2,800/bi-wk · Every other Mon</span>
+                    </div>
+                  </td>
+                  <td class="col-automation">
+                    <div class="automation-cell">
+                      <span class="automation-main">Automatic</span>
+                      <span class="automation-sub">Bi-weekly</span>
+                    </div>
+                  </td>
+                  <td class="col-payout">
+                    <div class="payout-cell">
+                      <!-- Wise logo — node 785:21203, h:10px w:46px -->
+                      <img src="https://www.figma.com/api/mcp/asset/31d8461a-ec87-4583-8523-522a8f450b92"
+                        width="46" height="10" alt="Wise" style="display:block;flex-shrink:0;"
+                        onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='block';" />
+                      <span style="display:none;font-size:12px;font-weight:800;color:#163300;letter-spacing:-0.5px;">wise</span>
+                      <span class="pill pill-blue" style="font-size:11px;padding:1px 7px;">Connected</span>
+                    </div>
+                  </td>
+                  <td class="col-wiseupdate" data-wise-status="pending">
+                    <!-- Pending: icon #9f580a (yellow/600) -->
+                    <div class="status-cell status-cell--pending">
+                      <span class="icon icon-status-pending">warning</span>
+                      <p class="label-status-pending">Pending</p>
+                    </div>
+                  </td>
+                  <td class="col-backup"><span style="color:#9CA3AF;font-size:12px;">None</span></td>
+                  <td class="col-lastpayment"><span style="font-size:12px;color:#111827;">Mar 15, 2025</span></td>
+                  <td class="col-timesheet"><span class="text-muted">No</span></td>
+                  <td class="col-adjustments"><span class="text-muted">—</span></td>
+                  <td class="col-overtime"><span class="pill pill-gray">4 active</span></td>
+                  <td class="col-timeoff"><span class="pill pill-gray">1 active</span></td>
+                  <td class="col-workbreak"><span class="pill pill-gray">2 active</span></td>
+                </tr>
+
+                <!-- Row 5: Ava Martinez -->
+                <tr data-row="4">
+                  <td class="col-check" onclick="toggleRow(4)">
+                    <div class="checkbox-wrap">
+                      <div class="cb-box" id="cb-4" data-checked="false"></div>
+                    </div>
+                  </td>
+                  <td class="col-member">
+                    <div class="member-cell">
+                      <div class="member-avatar" style="background:#D97706;">
+                        <img src="https://www.figma.com/api/mcp/asset/74de0f07-7931-4820-80c9-4de5db74ecfb" alt="Ava Martinez" onerror="this.style.display='none';this.parentElement.textContent='AM';" />
+                      </div>
+                      <span class="member-name">Ava Martinez</span>
+                    </div>
+                  </td>
+                  <td class="col-status"><span class="pill pill-green">Ready (automatic)</span></td>
+                  <td class="col-payinfo">
+                    <div class="cell-stack">
+                      <span class="cell-main">Hourly</span>
+                      <span class="cell-sub">$25.00/hr · Weekly · Fri</span>
+                    </div>
+                  </td>
+                  <td class="col-automation">
+                    <div class="automation-cell">
+                      <span class="automation-main">Automatic</span>
+                      <span class="automation-sub">Weekly</span>
+                    </div>
+                  </td>
+                  <td class="col-payout">
+                    <div class="payout-cell">
+                      <!-- Wise logo — node 785:21203, h:10px w:46px -->
+                      <img src="https://www.figma.com/api/mcp/asset/31d8461a-ec87-4583-8523-522a8f450b92"
+                        width="46" height="10" alt="Wise" style="display:block;flex-shrink:0;"
+                        onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='block';" />
+                      <span style="display:none;font-size:12px;font-weight:800;color:#163300;letter-spacing:-0.5px;">wise</span>
+                      <span class="pill pill-blue" style="font-size:11px;padding:1px 7px;">Connected</span>
+                    </div>
+                  </td>
+                  <td class="col-wiseupdate" data-wise-status="pending">
+                    <!-- Pending: icon #9f580a (yellow/600) -->
+                    <div class="status-cell status-cell--pending">
+                      <span class="icon icon-status-pending">warning</span>
+                      <p class="label-status-pending">Pending</p>
+                    </div>
+                  </td>
+                  <td class="col-backup"><span style="color:#9CA3AF;font-size:12px;">None</span></td>
+                  <td class="col-lastpayment"><span style="font-size:12px;color:#111827;">Mar 15, 2025</span></td>
+                  <td class="col-timesheet"><span class="pill pill-gray">Yes</span></td>
+                  <td class="col-adjustments"><div class="adj-pills"><span class="adj-pill"><span class="icon">add_circle</span><span class="adj-pill__text">1 addition</span></span></div></td>
+                  <td class="col-overtime"><span class="pill pill-gray">4 active</span></td>
+                  <td class="col-timeoff"><span class="text-muted">—</span></td>
+                  <td class="col-workbreak"><span class="pill pill-gray">4 active</span></td>
+                </tr>
+
+                <!-- Row 6: Joseph Garcia -->
+                <tr data-row="5">
+                  <td class="col-check" onclick="toggleRow(5)">
+                    <div class="checkbox-wrap">
+                      <div class="cb-box" id="cb-5" data-checked="false"></div>
+                    </div>
+                  </td>
+                  <td class="col-member">
+                    <div class="member-cell">
+                      <div class="member-avatar" style="background:#7C3AED;">
+                        <img src="https://www.figma.com/api/mcp/asset/2eb37bd3-a453-4bae-a7ec-c6847b6e4b26" alt="Joseph Garcia" onerror="this.style.display='none';this.parentElement.textContent='JG';" />
+                      </div>
+                      <span class="member-name">Joseph Garcia</span>
+                    </div>
+                  </td>
+                  <td class="col-status"><span class="pill pill-green">Ready (manual)</span></td>
+                  <td class="col-payinfo">
+                    <div class="cell-stack">
+                      <span class="cell-main">Fixed</span>
+                      <span class="cell-sub">$6,500/mo · 1st of month</span>
+                    </div>
+                  </td>
+                  <td class="col-automation">
+                    <div class="automation-cell">
+                      <span class="automation-main">Automatic</span>
+                      <span class="automation-sub">Monthly — 1st</span>
+                    </div>
+                  </td>
+                  <td class="col-payout">
+                    <div class="payout-cell">
+                      <!-- Wise logo — node 785:21203, h:10px w:46px -->
+                      <img src="https://www.figma.com/api/mcp/asset/31d8461a-ec87-4583-8523-522a8f450b92"
+                        width="46" height="10" alt="Wise" style="display:block;flex-shrink:0;"
+                        onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='block';" />
+                      <span style="display:none;font-size:12px;font-weight:800;color:#163300;letter-spacing:-0.5px;">wise</span>
+                      <span class="pill pill-blue" style="font-size:11px;padding:1px 7px;">Connected</span>
+                    </div>
+                  </td>
+                  <td class="col-wiseupdate">
+                    <!-- Updated: icon #0168dd (primary/700), text #111827 (gray/900) -->
+                    <div class="status-cell" data-node-id="785:21288">
+                      <span class="icon icon-status-updated" data-node-id="I785:21293;343:136462">check</span>
+                      <p class="label-status-updated" data-node-id="785:21294">Updated</p>
+                    </div>
+                  </td>
+                  <td class="col-backup"><span style="color:#9CA3AF;font-size:12px;">None</span></td>
+                  <td class="col-lastpayment"><span style="font-size:12px;color:#111827;">Mar 15, 2025</span></td>
+                  <td class="col-timesheet"><span class="text-muted">No</span></td>
+                  <td class="col-adjustments"><div class="adj-pills"><span class="adj-pill"><span class="icon">add_circle</span><span class="adj-pill__text">1 addition</span></span><span class="adj-pill"><span class="icon">do_not_disturb_on</span><span class="adj-pill__text">1 deduction</span></span></div></td>
+                  <td class="col-overtime"><span class="pill pill-gray">2 active</span></td>
+                  <td class="col-timeoff"><span class="pill pill-gray">4 active</span></td>
+                  <td class="col-workbreak"><span class="pill pill-gray">4 active</span></td>
+                </tr>
+
+                <!-- Row 7: Mason Rodriguez -->
+                <tr data-row="6">
+                  <td class="col-check" onclick="toggleRow(6)">
+                    <div class="checkbox-wrap">
+                      <div class="cb-box" id="cb-6" data-checked="false"></div>
+                    </div>
+                  </td>
+                  <td class="col-member">
+                    <div class="member-cell">
+                      <div class="member-avatar" style="background:#1D4ED8;">
+                        <img src="https://www.figma.com/api/mcp/asset/11ca16db-6157-49d1-9b2e-4cd44339db3c" alt="Mason Rodriguez" onerror="this.style.display='none';this.parentElement.textContent='MR';" />
+                      </div>
+                      <span class="member-name">Mason Rodriguez</span>
+                    </div>
+                  </td>
+                  <td class="col-status"><span class="pill pill-green">Ready (automatic)</span></td>
+                  <td class="col-payinfo">
+                    <div class="cell-stack">
+                      <span class="cell-main">Fixed</span>
+                      <span class="cell-sub">$1,800/wk · Every Friday</span>
+                    </div>
+                  </td>
+                  <td class="col-automation">
+                    <div class="automation-cell">
+                      <span class="automation-main">Automatic</span>
+                      <span class="automation-sub">Weekly</span>
+                    </div>
+                  </td>
+                  <td class="col-payout">
+                    <div class="payout-cell">
+                      <!-- Wise logo — node 785:21203, h:10px w:46px -->
+                      <img src="https://www.figma.com/api/mcp/asset/31d8461a-ec87-4583-8523-522a8f450b92"
+                        width="46" height="10" alt="Wise" style="display:block;flex-shrink:0;"
+                        onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='block';" />
+                      <span style="display:none;font-size:12px;font-weight:800;color:#163300;letter-spacing:-0.5px;">wise</span>
+                      <span class="pill pill-blue" style="font-size:11px;padding:1px 7px;">Connected</span>
+                    </div>
+                  </td>
+                  <td class="col-wiseupdate" data-wise-status="pending">
+                    <!-- Pending: icon #9f580a (yellow/600) -->
+                    <div class="status-cell status-cell--pending">
+                      <span class="icon icon-status-pending">warning</span>
+                      <p class="label-status-pending">Pending</p>
+                    </div>
+                  </td>
+                  <td class="col-backup"><span style="color:#9CA3AF;font-size:12px;">None</span></td>
+                  <td class="col-lastpayment"><span style="font-size:12px;color:#111827;">Mar 15, 2025</span></td>
+                  <td class="col-timesheet"><span class="pill pill-gray">Yes</span></td>
+                  <td class="col-adjustments"><div class="adj-pills"><span class="adj-pill"><span class="icon">add_circle</span><span class="adj-pill__text">1 addition</span></span><span class="adj-pill"><span class="icon">do_not_disturb_on</span><span class="adj-pill__text">1 deduction</span></span></div></td>
+                  <td class="col-overtime"><span class="pill pill-gray">3 active</span></td>
+                  <td class="col-timeoff"><span class="pill pill-gray">4 active</span></td>
+                  <td class="col-workbreak"><span class="text-muted">—</span></td>
+                </tr>
+
+                <!-- Row 8: Mia Hernandez -->
+                <tr data-row="7">
+                  <td class="col-check" onclick="toggleRow(7)">
+                    <div class="checkbox-wrap">
+                      <div class="cb-box" id="cb-7" data-checked="false"></div>
+                    </div>
+                  </td>
+                  <td class="col-member">
+                    <div class="member-cell">
+                      <div class="member-avatar" style="background:#BE185D;">
+                        <img src="https://www.figma.com/api/mcp/asset/ad9bbfd9-806f-400b-a292-4f6a546e4b73" alt="Mia Hernandez" onerror="this.style.display='none';this.parentElement.textContent='MH';" />
+                      </div>
+                      <span class="member-name">Mia Hernandez</span>
+                    </div>
+                  </td>
+                  <td class="col-status"><span class="pill pill-green">Ready (automatic)</span></td>
+                  <td class="col-payinfo">
+                    <div class="cell-stack">
+                      <span class="cell-main">Fixed</span>
+                      <span class="cell-sub">$5,000/mo · 4th of month</span>
+                    </div>
+                  </td>
+                  <td class="col-automation">
+                    <div class="automation-cell">
+                      <span class="automation-main">Manual</span>
+                      <span class="automation-sub">Monthly — 4th</span>
+                    </div>
+                  </td>
+                  <td class="col-payout">
+                    <div class="payout-cell">
+                      <!-- Wise logo — node 785:21203, h:10px w:46px -->
+                      <img src="https://www.figma.com/api/mcp/asset/31d8461a-ec87-4583-8523-522a8f450b92"
+                        width="46" height="10" alt="Wise" style="display:block;flex-shrink:0;"
+                        onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='block';" />
+                      <span style="display:none;font-size:12px;font-weight:800;color:#163300;letter-spacing:-0.5px;">wise</span>
+                      <span class="pill pill-blue" style="font-size:11px;padding:1px 7px;">Connected</span>
+                    </div>
+                  </td>
+                  <td class="col-wiseupdate" data-wise-status="pending">
+                    <!-- Pending: icon #9f580a (yellow/600), text #111827 (gray/900) -->
+                    <div class="status-cell status-cell--pending" data-node-id="785:20579">
+                      <span class="icon icon-status-pending" data-node-id="I785:20584;343:136814">warning</span>
+                      <p class="label-status-pending" data-node-id="785:20585">Pending</p>
+                    </div>
+                  </td>
+                  <td class="col-backup"><span style="color:#9CA3AF;font-size:12px;">None</span></td>
+                  <td class="col-lastpayment"><span style="font-size:12px;color:#111827;">Mar 15, 2025</span></td>
+                  <td class="col-timesheet"><span class="text-muted">No</span></td>
+                  <td class="col-adjustments"><div class="adj-pills"><span class="adj-pill"><span class="icon">do_not_disturb_on</span><span class="adj-pill__text">1 deduction</span></span></div></td>
+                  <td class="col-overtime"><span class="text-muted">—</span></td>
+                  <td class="col-timeoff"><span class="pill pill-gray">2 active</span></td>
+                  <td class="col-workbreak"><span class="pill pill-gray">4 active</span></td>
+                </tr>
+
+                <!-- Row 9: Lucas Lee (PayPal) -->
+                <tr data-row="8">
+                  <td class="col-check" onclick="toggleRow(8)">
+                    <div class="checkbox-wrap">
+                      <div class="cb-box" id="cb-8" data-checked="false"></div>
+                    </div>
+                  </td>
+                  <td class="col-member">
+                    <div class="member-cell">
+                      <div class="member-avatar" style="background:#0EA5E9;">
+                        <img src="https://www.figma.com/api/mcp/asset/ab16dfab-07bc-4e64-b8d7-a784907bae87" alt="Lucas Lee" onerror="this.style.display='none';this.parentElement.textContent='LL';" />
+                      </div>
+                      <span class="member-name">Lucas Lee</span>
+                    </div>
+                  </td>
+                  <td class="col-status"><span class="pill pill-green">Ready (manual)</span></td>
+                  <td class="col-payinfo">
+                    <div class="cell-stack">
+                      <span class="cell-main">Fixed</span>
+                      <span class="cell-sub">$5,500/mo · 4th of month</span>
+                    </div>
+                  </td>
+                  <td class="col-automation">
+                    <div class="automation-cell">
+                      <span class="automation-main">Manual</span>
+                      <span class="automation-sub">Monthly — 4th</span>
+                    </div>
+                  </td>
+                  <td class="col-payout">
+                    <div class="payout-cell">
+                      <!-- PayPal logo — node 785:18384, h:14px w:56px -->
+<div style="width:56px;height:14px;overflow:hidden;position:relative;flex-shrink:0;" aria-label="PayPal">
+                        <div style="position:absolute;top:20.45%;right:57.92%;bottom:21.98%;left:28.76%;"><img alt="" src="https://www.figma.com/api/mcp/asset/e7cfce9c-0c34-4328-95a4-e04846fcbff2" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+                        <div style="position:absolute;top:38.69%;right:45.79%;bottom:21.06%;left:41.26%;"><img alt="" src="https://www.figma.com/api/mcp/asset/c1720332-7c8d-4dd1-97da-60cf8593644f" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+                        <div style="position:absolute;top:39.62%;right:31.72%;bottom:8.55%;left:55.51%;"><img alt="" src="https://www.figma.com/api/mcp/asset/b689ed2f-9993-414f-8065-7de52b737080" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+                        <div style="position:absolute;top:20.45%;right:18.58%;bottom:21.98%;left:68.1%;"><img alt="" src="https://www.figma.com/api/mcp/asset/4c68fde2-58a7-4ba6-88db-133b577bc5bc" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+                        <div style="position:absolute;top:38.69%;right:6.45%;bottom:21.06%;left:80.6%;"><img alt="" src="https://www.figma.com/api/mcp/asset/bd2fff80-2847-46c6-a9fa-6d120c35445a" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+                        <div style="position:absolute;top:20.45%;right:0.33%;bottom:21.98%;left:93.94%;"><img alt="" src="https://www.figma.com/api/mcp/asset/348fa169-faa2-4c82-b67a-37f56ea216dc" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+                        <div style="position:absolute;top:3.1%;right:80.2%;bottom:11.65%;left:0.86%;"><img alt="" src="https://www.figma.com/api/mcp/asset/bd04ff78-fa3d-4d2a-8f44-1568d1558c7a" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+                        <div style="position:absolute;top:23.23%;right:79.37%;bottom:8.55%;left:4.99%;"><img alt="" src="https://www.figma.com/api/mcp/asset/6518fba4-1697-4c1d-b89c-fe052a8dfa09" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+                        <div style="position:absolute;top:20.32%;right:81.41%;bottom:45.78%;left:6.46%;"><img alt="" src="https://www.figma.com/api/mcp/asset/be462742-c339-4f15-ae73-06a9f9a9da74" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+                        <div style="position:absolute;top:0;right:81.3%;bottom:18.7%;left:0;"><img alt="" src="https://www.figma.com/api/mcp/asset/0b4101a3-f36d-4d89-bf13-3b890d8f5765" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+                      </div>
+                      <span style="background:#f3f4f6;border-radius:9999px;padding:2px 8px;font-size:12px;font-weight:400;color:#4b5563;white-space:nowrap;">Invited</span>
+                    </div>
+                  </td>
+                  <td class="col-wiseupdate">
+                    <!-- Not applicable: do_not_disturb_on icon #6b7280 -->
+                    <div class="status-cell" data-node-id="785:18465">
+                      <span class="icon" style="font-size:18px;color:#6b7280;line-height:18px;">do_not_disturb_on</span>
+                      <p class="label-status-na" data-node-id="785:18469">Not applicable</p>
+                    </div>
+                  </td>
+                  <td class="col-backup"><span style="color:#9CA3AF;font-size:12px;">None</span></td>
+                  <td class="col-lastpayment"><span style="font-size:12px;color:#111827;">—</span></td>
+                  <td class="col-timesheet"><span class="text-muted">No</span></td>
+                  <td class="col-adjustments"><div class="adj-pills"><span class="adj-pill"><span class="icon">add_circle</span><span class="adj-pill__text">1 addition</span></span></div></td>
+                  <td class="col-overtime"><span class="pill pill-gray">4 active</span></td>
+                  <td class="col-timeoff"><span class="text-muted">—</span></td>
+                  <td class="col-workbreak"><span class="pill pill-gray">1 active</span></td>
+                </tr>
+
+                <!-- Row 10: Adam Williams (PayPal) -->
+                <tr data-row="9">
+                  <td class="col-check" onclick="toggleRow(9)">
+                    <div class="checkbox-wrap">
+                      <div class="cb-box" id="cb-9" data-checked="false"></div>
+                    </div>
+                  </td>
+                  <td class="col-member">
+                    <div class="member-cell">
+                      <div class="member-avatar" style="background:#6D28D9;">
+                        <img src="https://www.figma.com/api/mcp/asset/9cf2bcf7-8377-4d31-b0f2-aabe393287b8" alt="Adam Williams" onerror="this.style.display='none';this.parentElement.textContent='AW';" />
+                      </div>
+                      <span class="member-name">Adam Williams</span>
+                    </div>
+                  </td>
+                  <td class="col-status"><span class="pill pill-green">Ready (manual)</span></td>
+                  <td class="col-payinfo">
+                    <div class="cell-stack">
+                      <span class="cell-main">Fixed</span>
+                      <span class="cell-sub">$3,200/bi-wk · Every other Mon</span>
+                    </div>
+                  </td>
+                  <td class="col-automation">
+                    <div class="automation-cell">
+                      <span class="automation-main">Automatic</span>
+                      <span class="automation-sub">Bi-weekly</span>
+                    </div>
+                  </td>
+                  <td class="col-payout">
+                    <div class="payout-cell">
+                      <!-- PayPal logo — node 1096:232336, h:14px w:56px -->
+                      <div style="width:56px;height:14px;overflow:hidden;position:relative;flex-shrink:0;" aria-label="PayPal">
+                        <div style="position:absolute;top:20.45%;right:57.92%;bottom:21.98%;left:28.76%;"><img alt="" src="https://www.figma.com/api/mcp/asset/e7cfce9c-0c34-4328-95a4-e04846fcbff2" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+                        <div style="position:absolute;top:38.69%;right:45.79%;bottom:21.06%;left:41.26%;"><img alt="" src="https://www.figma.com/api/mcp/asset/c1720332-7c8d-4dd1-97da-60cf8593644f" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+                        <div style="position:absolute;top:39.62%;right:31.72%;bottom:8.55%;left:55.51%;"><img alt="" src="https://www.figma.com/api/mcp/asset/b689ed2f-9993-414f-8065-7de52b737080" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+                        <div style="position:absolute;top:20.45%;right:18.58%;bottom:21.98%;left:68.1%;"><img alt="" src="https://www.figma.com/api/mcp/asset/4c68fde2-58a7-4ba6-88db-133b577bc5bc" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+                        <div style="position:absolute;top:38.69%;right:6.45%;bottom:21.06%;left:80.6%;"><img alt="" src="https://www.figma.com/api/mcp/asset/bd2fff80-2847-46c6-a9fa-6d120c35445a" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+                        <div style="position:absolute;top:20.45%;right:0.33%;bottom:21.98%;left:93.94%;"><img alt="" src="https://www.figma.com/api/mcp/asset/348fa169-faa2-4c82-b67a-37f56ea216dc" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+                        <div style="position:absolute;top:3.1%;right:80.2%;bottom:11.65%;left:0.86%;"><img alt="" src="https://www.figma.com/api/mcp/asset/bd04ff78-fa3d-4d2a-8f44-1568d1558c7a" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+                        <div style="position:absolute;top:23.23%;right:79.37%;bottom:8.55%;left:4.99%;"><img alt="" src="https://www.figma.com/api/mcp/asset/6518fba4-1697-4c1d-b89c-fe052a8dfa09" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+                        <div style="position:absolute;top:20.32%;right:81.41%;bottom:45.78%;left:6.46%;"><img alt="" src="https://www.figma.com/api/mcp/asset/be462742-c339-4f15-ae73-06a9f9a9da74" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+                        <div style="position:absolute;top:0;right:81.3%;bottom:18.7%;left:0;"><img alt="" src="https://www.figma.com/api/mcp/asset/0b4101a3-f36d-4d89-bf13-3b890d8f5765" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+                      </div>
+                      <span style="background:#f3f4f6;border-radius:9999px;padding:2px 8px;font-size:12px;font-weight:400;color:#4b5563;white-space:nowrap;">Invited</span>
+                    </div>
+                  </td>
+                  <td class="col-wiseupdate">
+                    <!-- Not applicable: do_not_disturb_on icon #6b7280 -->
+                    <div class="status-cell" data-node-id="785:18465">
+                      <span class="icon" style="font-size:18px;color:#6b7280;line-height:18px;">do_not_disturb_on</span>
+                      <p class="label-status-na" data-node-id="785:18469">Not applicable</p>
+                    </div>
+                  </td>
+                  <td class="col-backup"><span style="color:#9CA3AF;font-size:12px;">None</span></td>
+                  <td class="col-lastpayment"><span style="font-size:12px;color:#111827;">—</span></td>
+                  <td class="col-timesheet"><span class="text-muted">No</span></td>
+                  <td class="col-adjustments"><div class="adj-pills"><span class="adj-pill"><span class="icon">add_circle</span><span class="adj-pill__text">1 addition</span></span><span class="adj-pill"><span class="icon">do_not_disturb_on</span><span class="adj-pill__text">1 deduction</span></span></div></td>
+                  <td class="col-overtime"><span class="pill pill-gray">3 active</span></td>
+                  <td class="col-timeoff"><span class="pill pill-gray">4 active</span></td>
+                  <td class="col-workbreak"><span class="text-muted">—</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="pagination">
+            <div class="pagination-info">
+              <span id="pagination-info-text">Showing 1–10 of 30</span>
+              <select class="per-page-select" id="per-page-select" onchange="changeRowsPerPage(this.value)">
+                <option value="10" selected>10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+              </select>
+              Per page
+            </div>
+            <div class="pagination-pages" id="pagination-pages"></div>
+          </div>
+        </div><!-- end .card -->
+      </div><!-- end right-panel -->
+    </div><!-- end body-content -->
+  </main>
+</div><!-- end page-wrapper -->
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     FILTER DRAWER — node 785:17602
+════════════════════════════════════════════════════════════════════════ -->
+<div class="filter-drawer-overlay hidden" id="filter-drawer-overlay" onclick="closeFilterDrawer()">
+</div>
+<aside class="filter-drawer hidden" id="filter-drawer" data-node-id="785:17602">
+
+  <!-- Heading -->
+  <div class="drawer-heading" data-node-id="785:17603">
+    <span class="drawer-heading-text" data-node-id="785:17604">Filters</span>
+    <button class="drawer-close" onclick="closeFilterDrawer()" title="Close filters">
+      <span class="icon">close</span>
+    </button>
+  </div>
+
+  <!-- Scrollable body -->
+  <div class="drawer-body">
+
+    <!-- ── Section 1: General settings ── -->
+    <div class="drawer-section" data-node-id="785:17607">
+      <p class="drawer-section-title" data-node-id="785:17608">General settings</p>
+
+      <div class="drawer-field-group" data-node-id="785:17612">
+        <span class="drawer-field-label" data-node-id="I785:17612;6:2881">Pay rate</span>
+        <div class="drawer-field" data-node-id="I785:17612;6:2879">
+          <span class="drawer-field-value" data-node-id="I785:17612;6:2968">All</span>
+          <span class="icon drawer-field-chevron">expand_more</span>
+        </div>
+      </div>
+
+      <div class="drawer-field-group" data-node-id="785:17613">
+        <span class="drawer-field-label" data-node-id="I785:17613;6:2881">Pay type</span>
+        <div class="drawer-field" data-node-id="I785:17613;6:2879">
+          <span class="drawer-field-value" data-node-id="I785:17613;6:2968">All pay types</span>
+          <span class="icon drawer-field-chevron">expand_more</span>
+        </div>
+      </div>
+
+      <div class="drawer-field-group" data-node-id="785:17614">
+        <span class="drawer-field-label" data-node-id="I785:17614;6:2881">Pay period</span>
+        <div class="drawer-field" data-node-id="I785:17614;6:2879">
+          <span class="drawer-field-value" data-node-id="I785:17614;6:2968">All pay periods</span>
+          <span class="icon drawer-field-chevron">expand_more</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="drawer-divider"></div>
+
+    <!-- ── Section 2: Payment details ── -->
+    <div class="drawer-section" data-node-id="785:17618">
+      <p class="drawer-section-title" data-node-id="785:17619">Payment details</p>
+
+      <div class="drawer-field-group" data-node-id="785:17620">
+        <span class="drawer-field-label" data-node-id="I785:17620;6:2881">Primary payout method</span>
+        <div class="drawer-field" data-node-id="I785:17620;6:2879">
+          <span class="drawer-field-value" data-node-id="I785:17620;6:2968">All statuses</span>
+          <span class="icon drawer-field-chevron">expand_more</span>
+        </div>
+      </div>
+
+      <div class="drawer-field-group" data-node-id="819:36866">
+        <span class="drawer-field-label" data-node-id="I819:36866;6:2881">Primary payout method status</span>
+        <div class="drawer-field" data-node-id="I819:36866;6:2879">
+          <span class="drawer-field-value" data-node-id="I819:36866;6:2968">All statuses</span>
+          <span class="icon drawer-field-chevron">expand_more</span>
+        </div>
+      </div>
+
+      <div class="drawer-field-group" data-node-id="785:17621">
+        <span class="drawer-field-label" data-node-id="I785:17621;6:2881">Backup payout method</span>
+        <div class="drawer-field" data-node-id="I785:17621;6:2879">
+          <span class="drawer-field-value" data-node-id="I785:17621;6:2968">All statuses</span>
+          <span class="icon drawer-field-chevron">expand_more</span>
+        </div>
+      </div>
+
+      <div class="drawer-field-group" data-node-id="819:36867">
+        <span class="drawer-field-label" data-node-id="I819:36867;6:2881">Backup payout method status</span>
+        <div class="drawer-field" data-node-id="I819:36867;6:2879">
+          <span class="drawer-field-value" data-node-id="I819:36867;6:2968">All statuses</span>
+          <span class="icon drawer-field-chevron">expand_more</span>
+        </div>
+      </div>
+
+      <div class="drawer-field-group" data-node-id="815:36856">
+        <span class="drawer-field-label" data-node-id="I815:36856;6:2881">Wise update status</span>
+        <div class="drawer-dropdown-wrapper" id="wise-status-wrapper">
+          <div class="drawer-field" data-node-id="I815:36856;6:2879"
+               onclick="toggleWiseStatusDropdown(event)" style="cursor:pointer;">
+            <span class="drawer-field-value" id="wise-status-value" data-node-id="I815:36856;6:2968">Show All</span>
+            <span class="icon drawer-field-chevron" id="wise-status-chevron">expand_more</span>
+          </div>
+          <div class="drawer-dropdown-menu hidden" id="wise-status-menu" data-node-id="819:66259">
+            <div class="drawer-dropdown-item selected" onclick="selectWiseStatus(this, 'Show All')">Show All</div>
+            <div class="drawer-dropdown-item" onclick="selectWiseStatus(this, 'None')">None</div>
+            <div class="drawer-dropdown-item" onclick="selectWiseStatus(this, 'Pending')">Pending</div>
+            <div class="drawer-dropdown-item" onclick="selectWiseStatus(this, 'Updated')">Updated</div>
+            <div class="drawer-dropdown-item" onclick="selectWiseStatus(this, 'Deprecated')">Deprecated</div>
+            <div class="drawer-dropdown-item" onclick="selectWiseStatus(this, 'Not applicable')">Not applicable</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="drawer-field-group" data-node-id="785:17622">
+        <span class="drawer-field-label" data-node-id="I785:17622;6:2881">Payment automation</span>
+        <div class="drawer-field" data-node-id="I785:17622;6:2879">
+          <span class="drawer-field-value" data-node-id="I785:17622;6:2968">All types</span>
+          <span class="icon drawer-field-chevron">expand_more</span>
+        </div>
+      </div>
+
+      <div class="drawer-field-group" data-node-id="785:17623">
+        <span class="drawer-field-label" data-node-id="I785:17623;6:2881">Timesheet approval</span>
+        <div class="drawer-field" data-node-id="I785:17623;6:2879">
+          <span class="drawer-field-value" data-node-id="I785:17623;6:2968">All</span>
+          <span class="icon drawer-field-chevron">expand_more</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="drawer-divider"></div>
+
+    <!-- ── Section 3: Policies & adjustments ── -->
+    <div class="drawer-section" data-node-id="785:17626">
+      <p class="drawer-section-title" data-node-id="785:17627">Policies &amp; adjustments</p>
+
+      <div class="drawer-field-group" data-node-id="785:17628">
+        <span class="drawer-field-label" data-node-id="I785:17628;6:2881">Payroll adjustments</span>
+        <div class="drawer-field" data-node-id="I785:17628;6:2879">
+          <span class="drawer-field-value" data-node-id="I785:17628;6:2968">All payroll adjustments</span>
+          <span class="icon drawer-field-chevron">expand_more</span>
+        </div>
+      </div>
+
+      <div class="drawer-field-group" data-node-id="785:17629">
+        <span class="drawer-field-label" data-node-id="I785:17629;6:2881">Overtime</span>
+        <div class="drawer-field" data-node-id="I785:17629;6:2879">
+          <span class="drawer-field-value" data-node-id="I785:17629;6:2968">All</span>
+          <span class="icon drawer-field-chevron">expand_more</span>
+        </div>
+      </div>
+
+      <div class="drawer-field-group" data-node-id="785:17630">
+        <span class="drawer-field-label" data-node-id="I785:17630;6:2881">Time off</span>
+        <div class="drawer-field" data-node-id="I785:17630;6:2879">
+          <span class="drawer-field-value" data-node-id="I785:17630;6:2968">All</span>
+          <span class="icon drawer-field-chevron">expand_more</span>
+        </div>
+      </div>
+
+      <div class="drawer-field-group" data-node-id="785:17631">
+        <span class="drawer-field-label" data-node-id="I785:17631;6:2881">Work break</span>
+        <div class="drawer-field" data-node-id="I785:17631;6:2879">
+          <span class="drawer-field-value" data-node-id="I785:17631;6:2968">All</span>
+          <span class="icon drawer-field-chevron">expand_more</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /drawer-body -->
+
+  <!-- Footer -->
+  <div class="drawer-footer" data-node-id="785:17639">
+    <button class="drawer-btn-apply" onclick="applyFilters()" data-node-id="785:17642">Apply filters</button>
+    <button class="drawer-btn-clear" onclick="clearAllFilters()" data-node-id="785:17643">Clear filters</button>
+  </div>
+
+</aside>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     MODAL — node 825:66860  "Set as no Wise update needed?"
+════════════════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="wise-modal-overlay">
+  <div class="modal" data-node-id="825:66860">
+
+    <!-- Header — node 825:66861 -->
+    <div class="modal-header" data-node-id="825:66861">
+      <h2 class="modal-title" data-node-id="825:66862">Set as no Wise update needed?</h2>
+      <button class="modal-close" onclick="closeModal()" title="Close" data-node-id="825:66863">
+        <span class="icon">close</span>
+      </button>
+    </div>
+
+    <!-- Body — node 825:66864 -->
+    <div class="modal-body" data-node-id="825:66864">
+
+      <!-- Members breakdown strip — node 457:164619 -->
+      <div class="modal-members-strip" data-node-id="457:164619" style="position:relative;">
+        <!-- Avatar stack: 3 overlapping 24px circles with 2px white border -->
+        <div class="modal-avatar-stack" data-node-id="457:164586">
+          <!-- Frame 1: green gradient + woman photo -->
+          <div class="modal-avatar-frame" data-node-id="I457:164586;227:9803">
+            <div class="modal-avatar modal-avatar--green" data-node-id="232:123851">
+              <img src="https://www.figma.com/api/mcp/asset/ec58b2a7-2c91-4655-8787-a50e70efd4a6"
+                alt="" onerror="this.style.display='none'" />
+            </div>
+          </div>
+          <!-- Frame 2: blue gradient + woman photo -->
+          <div class="modal-avatar-frame" data-node-id="I457:164586;227:9805">
+            <div class="modal-avatar modal-avatar--blue" data-node-id="232:123855">
+              <img src="https://www.figma.com/api/mcp/asset/523a86b9-2e8e-4cec-8f44-2a328bed7f21"
+                alt="" onerror="this.style.display='none'" />
+            </div>
+          </div>
+          <!-- Frame 3: purple + "RJ" initials -->
+          <div class="modal-avatar-frame" data-node-id="I457:164586;227:9809">
+            <div class="modal-avatar modal-avatar--purple" data-node-id="I457:164586;227:9810">RJ</div>
+          </div>
+        </div>
+        <!-- Dynamic selected count — clicking opens the Zone Popover list -->
+        <button class="modal-members-count" id="modal-members-count"
+                onclick="toggleMembersPopover(event)">
+          0 selected members
+        </button>
+        <!-- Zone Popover — list of selected user names (882:105370) -->
+        <div class="members-popover hidden" id="members-popover" style="position:absolute;top:calc(100% + 6px);right:0;left:auto;z-index:1200;min-width:220px;">
+          <div class="members-popover__header">Wise</div>
+          <ol class="members-popover__list" id="members-popover-list"></ol>
+        </div>
+      </div>
+
+      <!-- Bullet list — node 825:66866 -->
+      <ul class="modal-bullets" data-node-id="825:66866">
+        <li>The selected members will be excluded from the Wise update.</li>
+        <li>They will stop receiving reminders and won't be able to receive payments via Wise.</li>
+        <li>To pay them with Wise again, you'll need to invite them back later.</li>
+      </ul>
+
+      <!-- Consent checkbox — node 825:66994 -->
+      <div class="modal-consent" data-node-id="825:66994">
+        <div class="modal-consent-inner" data-node-id="I825:66994;7441:738">
+          <div class="modal-consent-cb" id="modal-consent-cb" data-checked="false"
+               onclick="toggleModalConsent()" data-node-id="I825:66994;7441:739"></div>
+          <label class="modal-consent-label" onclick="toggleModalConsent()"
+                 data-node-id="I825:66994;7441:741">
+            I understand these members won't receive payments via Wise unless re-added.
+          </label>
+        </div>
+      </div>
+
+    </div><!-- /modal-body -->
+
+    <!-- Footer — node 825:66870 -->
+    <div class="modal-footer" data-node-id="825:66870">
+      <button class="modal-btn-cancel" onclick="closeModal()" data-node-id="825:66873">Cancel</button>
+      <button class="modal-btn-confirm" id="modal-btn-confirm" disabled onclick="confirmModal()" data-node-id="825:66874">Confirm change</button>
+    </div>
+
+  </div><!-- /modal -->
+</div><!-- /modal-overlay -->
+
+<script>
+  // ─── State ───────────────────────────────────────────────────────────────
+  const TOTAL_ROWS = 30;
+  const selected = new Set();
+
+  // Initialise from data-checked="true" on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    generateAdditionalRows();
+    renderPage();
+    document.querySelectorAll('.cb-box[data-checked="true"]').forEach(box => {
+      const tr = box.closest('tr[data-row]');
+      if (tr) selected.add(parseInt(tr.dataset.row, 10));
+    });
+    updateBatchBar();
+  });
+
+  // ─── Toggle a single row ─────────────────────────────────────────────────
+  function toggleRow(idx) {
+    if (selected.has(idx)) {
+      selected.delete(idx);
+    } else {
+      selected.add(idx);
+    }
+    renderCheckbox(idx, selected.has(idx));
+    updateBatchBar();
+  }
+
+  // ─── Select all rows ─────────────────────────────────────────────────────
+  function selectAll() {
+    for (let i = 0; i < TOTAL_ROWS; i++) {
+      selected.add(i);
+      renderCheckbox(i, true);
+    }
+    updateBatchBar();
+  }
+
+  // ─── Clear all selections ────────────────────────────────────────────────
+  function clearSelection() {
+    selected.clear();
+    for (let i = 0; i < TOTAL_ROWS; i++) {
+      renderCheckbox(i, false);
+    }
+    updateBatchBar();
+  }
+
+  // ─── Toggle all (header checkbox) ────────────────────────────────────────
+  function toggleAll() {
+    if (selected.size === TOTAL_ROWS) {
+      clearSelection();
+    } else {
+      selectAll();
+    }
+  }
+
+  // ─── Render a checkbox div ───────────────────────────────────────────────
+  function renderCheckbox(idx, checked) {
+    const box = document.getElementById('cb-' + idx);
+    if (!box) return;
+    box.setAttribute('data-checked', checked ? 'true' : 'false');
+    if (checked) {
+      box.innerHTML = '<span class="icon" style="font-size:14px;color:#fff;line-height:1;">check_small</span>';
+    } else {
+      box.innerHTML = '';
+    }
+    // Sync row highlight — needed for CSS tbody tr.row-selected td rules
+    const tr = box.closest('tr[data-row]');
+    if (tr) tr.classList.toggle('row-selected', checked);
+  }
+
+  // ─── Sync the header checkbox ─────────────────────────────────────────────
+  function updateHeaderCheckbox() {
+    const hdr = document.getElementById('cb-header');
+    if (!hdr) return;
+    const allChecked = selected.size === TOTAL_ROWS;
+    const someChecked = selected.size > 0 && !allChecked;
+    hdr.setAttribute('data-checked', allChecked ? 'true' : 'false');
+    if (allChecked) {
+      hdr.innerHTML = '<span class="icon" style="font-size:14px;color:#fff;line-height:1;">check_small</span>';
+    } else if (someChecked) {
+      // Indeterminate: small dash
+      hdr.innerHTML = '<span class="icon" style="font-size:14px;color:#0168DD;line-height:1;">remove</span>';
+      hdr.style.borderColor = '#0168DD';
+    } else {
+      hdr.innerHTML = '';
+      hdr.style.borderColor = '';
+    }
+  }
+
+  // ─── Update the batch bar visibility and content ─────────────────────────
+  function updateBatchBar() {
+    const bar   = document.getElementById('batch-bar');
+    const count = document.getElementById('batch-count');
+    const n     = selected.size;
+
+    if (n === 0) {
+      bar.style.display = 'none';
+    } else {
+      bar.style.display = '';   // restore (flex via CSS)
+      count.textContent = n + ' selected';
+    }
+    updateHeaderCheckbox();
+  }
+
+  // ─── Toggle the more_vert dropdown ───────────────────────────────────────
+  function toggleDropdown(evt) {
+    evt.stopPropagation();
+    const drop = document.getElementById('more-dropdown');
+    drop.style.display = drop.style.display === 'none' ? 'block' : 'none';
+  }
+
+  // Close dropdown when clicking outside the batch bar
+  document.addEventListener('click', (evt) => {
+    const bar  = document.getElementById('batch-bar');
+    const drop = document.getElementById('more-dropdown');
+    if (drop && bar && !bar.contains(evt.target)) {
+      drop.style.display = 'none';
+    }
+  });
+
+  // ─── Modal: "Set as no Wise update needed?" ───────────────────────────────
+
+  function openModal() {
+    // Close the dropdown first
+    document.getElementById('more-dropdown').style.display = 'none';
+
+    // Sync selected-members count label
+    const n = selected.size;
+    document.getElementById('modal-members-count').textContent =
+      n + ' selected member' + (n !== 1 ? 's' : '');
+
+    // Reset members popover to hidden
+    const pop = document.getElementById('members-popover');
+    if (pop) pop.classList.add('hidden');
+
+    // Reset consent checkbox to unchecked and disable confirm button
+    const cb = document.getElementById('modal-consent-cb');
+    cb.setAttribute('data-checked', 'false');
+    cb.innerHTML = '';
+    document.getElementById('modal-btn-confirm').disabled = true;
+
+    // Show modal
+    document.getElementById('wise-modal-overlay').classList.remove('hidden');
+  }
+
+  function closeModal() {
+    document.getElementById('wise-modal-overlay').classList.add('hidden');
+  }
+
+  function confirmModal() {
+    let newNA = 0, removedPending = 0, removedDeprecated = 0, removedUpdated = 0;
+
+    selected.forEach(idx => {
+      const tr = document.querySelector(`tr[data-row="${idx}"]`);
+      if (!tr) return;
+      const wiseCell = tr.querySelector('td.col-wiseupdate');
+      if (!wiseCell) return;
+      const prevStatus = wiseCell.dataset.wiseStatus || getWiseStatusFromCell(wiseCell);
+      if (prevStatus === 'pending')     removedPending++;
+      else if (prevStatus === 'deprecated') removedDeprecated++;
+      else if (prevStatus === 'updated')    removedUpdated++;
+      delete wiseCell.dataset.wiseStatus;
+      wiseCell.innerHTML = '<div class="status-cell"><span class="icon" style="font-size:18px;color:#6b7280;line-height:18px;">do_not_disturb_on</span><p class="label-status-na">Not applicable</p></div>';
+      newNA++;
+    });
+
+    // Update card NA count (shared across both states)
+    const naEl = document.getElementById('card-count-na');
+    if (naEl) naEl.textContent = Math.max(0, parseInt(naEl.textContent) + newNA);
+
+    // Update the correct state count based on current mode
+    if (deprecatedMode) {
+      // Deprecated state: decrement Updated or Deprecated counts
+      const updEl = document.getElementById('card-count-updated');
+      const depEl = document.getElementById('card-count-deprecated');
+      if (updEl) updEl.textContent = Math.max(0, parseInt(updEl.textContent) - removedUpdated);
+      if (depEl) depEl.textContent = Math.max(0, parseInt(depEl.textContent) - removedDeprecated);
+      // Also update the state object so toggle restores correctly
+      DEPRECATED_STATE.naCount += newNA;
+      DEPRECATED_STATE.updatedCount    = Math.max(0, DEPRECATED_STATE.updatedCount    - removedUpdated);
+      DEPRECATED_STATE.deprecatedCount = Math.max(0, DEPRECATED_STATE.deprecatedCount - removedDeprecated);
+    } else {
+      // Pending state: decrement Updated or Pending counts
+      const updEl = document.getElementById('card-count-updated');
+      const penEl = document.getElementById('card-count-pending');
+      if (updEl) updEl.textContent = Math.max(0, parseInt(updEl.textContent) - removedUpdated);
+      if (penEl) penEl.textContent = Math.max(0, parseInt(penEl.textContent) - removedPending);
+      // Also update the state object
+      PENDING_STATE.naCount += newNA;
+      PENDING_STATE.updatedCount = Math.max(0, PENDING_STATE.updatedCount - removedUpdated);
+      PENDING_STATE.pendingCount = Math.max(0, PENDING_STATE.pendingCount - removedPending);
+    }
+
+    closeModal();
+    clearSelection();
+    renderPage();
+  }
+
+  // Click on the backdrop (outside the modal card) closes it
+  document.getElementById('wise-modal-overlay').addEventListener('click', function(evt) {
+    if (evt.target === this) closeModal();
+  });
+
+  // Escape key closes the modal
+  document.addEventListener('keydown', (evt) => {
+    if (evt.key === 'Escape') closeModal();
+  });
+
+  function toggleModalConsent() {
+    const cb = document.getElementById('modal-consent-cb');
+    const checked = cb.getAttribute('data-checked') === 'true';
+    const nowChecked = !checked;
+    cb.setAttribute('data-checked', nowChecked ? 'true' : 'false');
+    cb.innerHTML = nowChecked
+      ? '<span class="icon" style="font-size:12px;color:#fff;line-height:1;">check_small</span>'
+      : '';
+    // Enable/disable the Confirm button based on checkbox state
+    document.getElementById('modal-btn-confirm').disabled = !nowChecked;
+  }
+
+  // ─── Row names for members popover ───────────────────────────────────────
+  const ROW_NAMES = [
+    // Rows 0-9 (static HTML)
+    'Liam Johnson', 'Emma Davis', 'Ethan Smith', 'Noah Wilson', 'Ava Martinez',
+    'Joseph Garcia', 'Mason Rodriguez', 'Mia Hernandez', 'Lucas Lee', 'Adam Williams',
+    // Rows 10-21 (Updated – Wise Connected)
+    'Sophie Turner', 'Carlos Ramirez', 'Mei Li', 'James Patel', 'Fatima Hassan',
+    'David Kim', 'Priya Sharma', 'Tom Anderson', 'Isabella Rossi', 'Omar Abdullah',
+    'Yuki Tanaka', 'Ana Silva',
+    // Rows 22-29 (Not applicable – PayPal Invited)
+    'Ryan O\'Brien', 'Layla Ahmed', 'Marcus Johnson', 'Elena Popescu',
+    'Felix Wagner', 'Aisha Osei', 'Nathan Lee', 'Sara Kovač'
+  ];
+
+  // ─── Members popover ─────────────────────────────────────────────────────
+  function toggleMembersPopover(evt) {
+    evt.stopPropagation();
+    const pop  = document.getElementById('members-popover');
+    const list = document.getElementById('members-popover-list');
+
+    if (pop.classList.contains('hidden')) {
+      // Build numbered list from current selection (882:105370 design)
+      const items = [...selected].sort((a, b) => a - b);
+      if (items.length === 0) {
+        list.innerHTML = '<li style="list-style:none;padding:0 0 8px 0;color:#6b7280;font-size:13px;">No members selected</li>';
+      } else {
+        list.innerHTML = items.map(idx => {
+          const name = ROW_NAMES[idx] || 'Unknown';
+          return `<li>${name}</li>`;
+        }).join('');
+      }
+      pop.classList.remove('hidden');
+    } else {
+      pop.classList.add('hidden');
+    }
+  }
+
+  // Close members popover when clicking outside the members strip
+  document.addEventListener('click', (evt) => {
+    const strip = document.querySelector('.modal-members-strip');
+    const pop   = document.getElementById('members-popover');
+    if (pop && strip && !strip.contains(evt.target)) {
+      pop.classList.add('hidden');
+    }
+  });
+
+
+  // ─── Generate additional rows (rows 10-29) ────────────────────────────────
+  const EXTRA_USERS = [
+    // idx, name, bg, wiseStatus ('updated'|'na'), initials
+    [10, 'Sophie Turner',   '#D97706', 'updated', 'ST'],
+    [11, 'Carlos Ramirez',  '#059669', 'updated', 'CR'],
+    [12, 'Mei Li',          '#7C3AED', 'updated', 'ML'],
+    [13, 'James Patel',     '#DC2626', 'pending', 'JP'],
+    [14, 'Fatima Hassan',   '#2563EB', 'pending', 'FH'],
+    [15, 'David Kim',       '#0891B2', 'pending', 'DK'],
+    [16, 'Priya Sharma',    '#DB2777', 'pending', 'PS'],
+    [17, 'Tom Anderson',    '#65A30D', 'pending', 'TA'],
+    [18, 'Isabella Rossi',  '#EA580C', 'pending', 'IR'],
+    [19, 'Omar Abdullah',   '#6D28D9', 'pending', 'OA'],
+    [20, 'Yuki Tanaka',     '#0D9488', 'pending', 'YT'],
+    [21, 'Ana Silva',       '#B45309', 'pending', 'AS'],
+    [22, "Ryan O'Brien",    '#1D4ED8', 'na',      'RO'],
+    [23, 'Layla Ahmed',     '#7E22CE', 'na',      'LA'],
+    [24, 'Marcus Johnson',  '#047857', 'na',      'MJ'],
+    [25, 'Elena Popescu',   '#B91C1C', 'na',      'EP'],
+    [26, 'Felix Wagner',    '#0369A1', 'na',      'FW'],
+    [27, 'Aisha Osei',      '#9D174D', 'na',      'AO'],
+    [28, 'Nathan Lee',      '#164E63', 'na',      'NL'],
+    [29, 'Sara Kovač',      '#78350F', 'na',      'SK'],
+  ];
+
+  function buildWiseUpdateCell(wiseStatus) {
+    if (wiseStatus === 'updated') {
+      return `<td class="col-wiseupdate">
+        <div class="status-cell">
+          <span class="icon icon-status-updated">check</span>
+          <p class="label-status-updated">Updated</p>
+        </div>
+      </td>`;
+    } else if (wiseStatus === 'pending') {
+      return `<td class="col-wiseupdate" data-wise-status="pending">
+        <div class="status-cell status-cell--pending">
+          <span class="icon icon-status-pending">warning</span>
+          <p class="label-status-pending">Pending</p>
+        </div>
+      </td>`;
+    } else {
+      return `<td class="col-wiseupdate">
+        <div class="status-cell">
+          <span class="icon" style="font-size:18px;color:#6b7280;line-height:18px;">do_not_disturb_on</span>
+          <p class="label-status-na">Not applicable</p>
+        </div>
+      </td>`;
+    }
+  }
+
+  function buildPayoutCell(wiseStatus, rowIdx) {
+    if (wiseStatus === 'updated' || wiseStatus === 'pending') {
+      // Wise users — both Updated and Pending show Wise Connected in the payout column
+      return `<td class="col-payout">
+        <div class="payout-cell">
+          <span onclick="window.location.href='wise-email.html'" title="Back to email" style="cursor:pointer;display:flex;align-items:center;">
+            <img src="https://www.figma.com/api/mcp/asset/31d8461a-ec87-4583-8523-522a8f450b92"
+              width="46" height="10" alt="Wise" style="display:block;flex-shrink:0;"
+              onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='block';" />
+            <span style="display:none;font-size:10px;font-weight:800;color:#163300;letter-spacing:-0.5px;">wise</span>
+          </span>
+          <span class="pill pill-blue" style="font-size:11px;padding:1px 7px;">Connected</span>
+        </div>
+      </td>`;
+    } else {
+      // PayPal users ('na') — Wise update is always Not applicable
+      return `<td class="col-payout">
+        <div class="payout-cell">
+          <div style="width:56px;height:14px;overflow:hidden;position:relative;flex-shrink:0;" aria-label="PayPal">
+            <div style="position:absolute;top:20.45%;right:57.92%;bottom:21.98%;left:28.76%;"><img alt="" src="https://www.figma.com/api/mcp/asset/e7cfce9c-0c34-4328-95a4-e04846fcbff2" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+            <div style="position:absolute;top:38.69%;right:45.79%;bottom:21.06%;left:41.26%;"><img alt="" src="https://www.figma.com/api/mcp/asset/c1720332-7c8d-4dd1-97da-60cf8593644f" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+            <div style="position:absolute;top:39.62%;right:31.72%;bottom:8.55%;left:55.51%;"><img alt="" src="https://www.figma.com/api/mcp/asset/b689ed2f-9993-414f-8065-7de52b737080" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+            <div style="position:absolute;top:20.45%;right:18.58%;bottom:21.98%;left:68.1%;"><img alt="" src="https://www.figma.com/api/mcp/asset/4c68fde2-58a7-4ba6-88db-133b577bc5bc" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+            <div style="position:absolute;top:38.69%;right:6.45%;bottom:21.06%;left:80.6%;"><img alt="" src="https://www.figma.com/api/mcp/asset/bd2fff80-2847-46c6-a9fa-6d120c35445a" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+            <div style="position:absolute;top:20.45%;right:0.33%;bottom:21.98%;left:93.94%;"><img alt="" src="https://www.figma.com/api/mcp/asset/348fa169-faa2-4c82-b67a-37f56ea216dc" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+            <div style="position:absolute;top:3.1%;right:80.2%;bottom:11.65%;left:0.86%;"><img alt="" src="https://www.figma.com/api/mcp/asset/bd04ff78-fa3d-4d2a-8f44-1568d1558c7a" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+            <div style="position:absolute;top:23.23%;right:79.37%;bottom:8.55%;left:4.99%;"><img alt="" src="https://www.figma.com/api/mcp/asset/6518fba4-1697-4c1d-b89c-fe052a8dfa09" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+            <div style="position:absolute;top:20.32%;right:81.41%;bottom:45.78%;left:6.46%;"><img alt="" src="https://www.figma.com/api/mcp/asset/be462742-c339-4f15-ae73-06a9f9a9da74" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+            <div style="position:absolute;top:0;right:81.3%;bottom:18.7%;left:0;"><img alt="" src="https://www.figma.com/api/mcp/asset/0b4101a3-f36d-4d89-bf13-3b890d8f5765" style="position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;" /></div>
+          </div>
+          <span style="background:#f3f4f6;border-radius:9999px;padding:2px 8px;font-size:12px;font-weight:400;color:#4b5563;white-space:nowrap;">Invited</span>
+        </div>
+      </td>`;
+    }
+  }
+
+  function generateAdditionalRows() {
+    const tbody = document.getElementById('members-tbody');
+    if (!tbody) return;
+    const adjustOptions = [
+      '<span class="text-muted">—</span>',
+      '<div class="adj-pills"><span class="adj-pill"><span class="icon">add_circle</span><span class="adj-pill__text">1 addition</span></span></div>',
+      '<div class="adj-pills"><span class="adj-pill"><span class="icon">do_not_disturb_on</span><span class="adj-pill__text">1 deduction</span></span></div>',
+    ];
+    const otOptions = [1, 2, 3, 4, null];
+    const toOptions = [null, 1, 2, 4];
+    const wbOptions = [1, 2, 4, null];
+
+    EXTRA_USERS.forEach(([idx, name, bg, wiseStatus]) => {
+      const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      const isNA = wiseStatus === 'na';
+      const pill = isNA
+        ? '<span class="pill pill-green">Ready (manual)</span>'
+        : '<span class="pill pill-green">Ready (automatic)</span>';
+      const ot = otOptions[idx % otOptions.length];
+      const to = toOptions[idx % toOptions.length];
+      const wb = wbOptions[idx % wbOptions.length];
+      const cell = v => v !== null
+        ? `<span class="pill pill-gray">${v} active</span>`
+        : `<span class="text-muted">—</span>`;
+      const adj = adjustOptions[idx % adjustOptions.length];
+      // Realistic pay & automation
+      const isManual = (wiseStatus === 'na') || (idx % 3 === 0);
+      const autoMode = isManual ? 'Manual' : 'Automatic';
+      const autoSchedules = ['Weekly', 'Bi-weekly', 'Monthly — 1st', 'Monthly — 15th'];
+      const autoSub = isManual ? 'Monthly — 4th' : autoSchedules[idx % autoSchedules.length];
+      const payTypes  = ['Fixed', 'Fixed', 'Fixed', 'Hourly'];
+      const payType   = payTypes[idx % payTypes.length];
+      const salaries  = ['$1,200/wk','$3,000/bi-wk','$5,000/mo','$6,200/mo','$2,400/wk','$4,800/mo'];
+      const payAmt    = isManual ? '$5,000/mo' : salaries[idx % salaries.length];
+      const periods   = ['Every Friday','Every other Mon','1st of month','15th of month'];
+      const payPeriod = isManual ? '4th of month' : periods[idx % periods.length];
+      const ts = idx % 3 !== 0
+        ? '<span class="pill pill-gray">Yes</span>'
+        : '<span class="text-muted">No</span>';
+      const wiseUpdateCell = buildWiseUpdateCell(wiseStatus);
+      const payoutCell = buildPayoutCell(wiseStatus, idx);
+      const wiseAttr = '';  // generated rows won't toggle (only row 7 does)
+
+      const tr = document.createElement('tr');
+      tr.dataset.row = idx;
+      tr.innerHTML = `
+        <td class="col-check" onclick="toggleRow(${idx})">
+          <div class="checkbox-wrap"><div class="cb-box" id="cb-${idx}" data-checked="false"></div></div>
+        </td>
+        <td class="col-member">
+          <div class="member-cell">
+            <div class="member-avatar" style="background:${bg};">${initials}</div>
+            <span class="member-name">${name}</span>
+          </div>
+        </td>
+        <td class="col-status">${pill}</td>
+        <td class="col-payinfo">
+          <div class="cell-stack"><span class="cell-main">${payType}</span><span class="cell-sub">${payAmt} · ${payPeriod}</span></div>
+        </td>
+        <td class="col-automation">
+          <div class="automation-cell">
+            <span class="automation-main">${autoMode}</span>
+            <span class="automation-sub">${autoSub}</span>
+          </div>
+        </td>
+        ${payoutCell}
+        ${wiseUpdateCell}
+        <td class="col-backup"><span style="color:#9CA3AF;font-size:12px;">None</span></td>
+        <td class="col-lastpayment"><span style="font-size:12px;color:#111827;">Mar 15, 2025</span></td>
+        <td class="col-timesheet">${ts}</td>
+        <td class="col-adjustments">${adj}</td>
+        <td class="col-overtime">${cell(ot)}</td>
+        <td class="col-timeoff">${cell(to)}</td>
+        <td class="col-workbreak">${cell(wb)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // ─── Deprecated mode toggle ────────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════════════
+  //  TWO-STATE MODEL — Pending and Deprecated use separate data sets
+  //
+  //  PENDING STATE (initial):   Updated=6,  Pending=14, NA=10, progress=30%
+  //  DEPRECATED STATE (later):  Updated=14, Deprecated=6, NA=10, progress=80%
+  //
+  //  Table row ownership:
+  //    ALL_PENDING_ROWS (14): rows pending in normal mode
+  //    WILL_DEPRECATE   (6):  subset that become Deprecated
+  //    WILL_UPDATE      (8):  subset that become Updated (migrated late)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  let deprecatedMode = false;
+
+  const ALL_PENDING_ROWS  = [2, 3, 4, 6, 7, 13, 14, 15, 16, 17, 18, 19, 20, 21];
+  const WILL_DEPRECATE    = [7, 16, 17, 19, 20, 21];   // 6 rows — stubborn non-migrators
+  const WILL_UPDATE_LATER = [2, 3, 4, 6, 13, 14, 15, 18]; // 8 rows — migrated late
+
+  const PENDING_STATE = {
+    updatedCount:    6,
+    pendingCount:    14,
+    naCount:         10,
+    pct:             '30%',
+    pillBg:          '#e8d2ff',
+    pillColor:       '#5427a7',
+    progressRight:   '70%',
+    showDate:        true,
+  };
+
+  const DEPRECATED_STATE = {
+    updatedCount:    14,
+    deprecatedCount: 6,
+    naCount:         10,
+    pct:             '80%',
+    pillBg:          '#d4edff',
+    pillColor:       '#0a4b96',
+    progressRight:   '20%',
+    showDate:        false,
+  };
+
+  function applyTableState(state) {
+    // Helper: update wise-update cell
+    function setWise(rowIdx, type) {
+      const td = document.querySelector('tr[data-row="' + rowIdx + '"] td.col-wiseupdate');
+      if (!td) return;
+      if (type === 'updated') {
+        delete td.dataset.wiseStatus;
+        td.innerHTML = '<div class="status-cell"><span class="icon icon-status-updated">check</span><p class="label-status-updated">Updated</p></div>';
+      } else if (type === 'pending') {
+        td.dataset.wiseStatus = 'pending';
+        td.innerHTML = '<div class="status-cell status-cell--pending"><span class="icon icon-status-pending">warning</span><p class="label-status-pending">Pending</p></div>';
+      } else if (type === 'deprecated') {
+        td.dataset.wiseStatus = 'deprecated';
+        td.innerHTML = '<div class="status-cell"><span class="icon icon-status-deprecated">cancel</span><p class="label-status-deprecated">Deprecated</p></div>';
+      }
+    }
+
+    // Helper: update payroll status cell
+    function setPayrollStatus(rowIdx, label) {
+      const td = document.querySelector('tr[data-row="' + rowIdx + '"] td.col-status');
+      if (!td) return;
+      td.innerHTML = '<span class="pill pill-green">' + label + '</span>';
+    }
+
+    if (state === 'deprecated') {
+      // 8 rows that migrated late: Pending → Updated
+      WILL_UPDATE_LATER.forEach(idx => setWise(idx, 'updated'));
+      // 6 stubborn rows: Pending → Deprecated + payroll becomes Ready (manual)
+      WILL_DEPRECATE.forEach(idx => {
+        setWise(idx, 'deprecated');
+        setPayrollStatus(idx, 'Ready (manual)');
+      });
+    } else {
+      // Restore: all 14 rows back to Pending
+      ALL_PENDING_ROWS.forEach(idx => setWise(idx, 'pending'));
+      // Restore deprecated rows payroll back to Ready (automatic)
+      WILL_DEPRECATE.forEach(idx => setPayrollStatus(idx, 'Ready (automatic)'));
+    }
+  }
+
+  function applyCardState(s) {
+    const pill     = document.getElementById('card-pct-pill');
+    const pillText = document.getElementById('card-pct-text');
+    const bar      = document.getElementById('card-progress-bar');
+    const dateEl   = document.getElementById('wise-update-date');
+
+    if (pill)     pill.style.background  = s.pillBg;
+    if (pillText) { pillText.style.color = s.pillColor; pillText.textContent = s.pct; }
+    if (bar)      bar.style.inset = '0 ' + s.progressRight + ' 0 0';
+    if (dateEl)   dateEl.style.display = s.showDate ? '' : 'none';
+
+    // Card row visibility + counts
+    const pending    = document.getElementById('card-row-pending');
+    const deprecated = document.getElementById('card-row-deprecated');
+    const div2       = document.getElementById('card-divider-2');
+    const div3       = document.getElementById('card-divider-3');
+
+    if (s === DEPRECATED_STATE) {
+      if (pending)    pending.style.display    = 'none';
+      if (deprecated) deprecated.style.display = 'flex';
+      if (div2) div2.style.display = 'none';
+      if (div3) div3.style.display = '';
+      document.getElementById('card-count-updated').textContent    = s.updatedCount;
+      document.getElementById('card-count-deprecated').textContent = s.deprecatedCount;
+      document.getElementById('card-count-na').textContent         = s.naCount;
+    } else {
+      if (pending)    pending.style.display    = 'flex';
+      if (deprecated) deprecated.style.display = 'none';
+      if (div2) div2.style.display = '';
+      if (div3) div3.style.display = 'none';
+      document.getElementById('card-count-updated').textContent = s.updatedCount;
+      document.getElementById('card-count-pending').textContent  = s.pendingCount;
+      document.getElementById('card-count-na').textContent       = s.naCount;
+    }
+  }
+
+  function toggleDeprecatedMode() {
+    deprecatedMode = !deprecatedMode;
+    const btn = document.getElementById('profile-p-btn');
+
+    if (deprecatedMode) {
+      btn.style.background = '#dc2626';
+      btn.title = 'Back to normal view';
+      applyTableState('deprecated');
+      applyCardState(DEPRECATED_STATE);
+    } else {
+      btn.style.background = '#31c48d';
+      btn.title = 'Toggle deprecated view';
+      applyTableState('pending');
+      applyCardState(PENDING_STATE);
+    }
+
+    // Re-paginate after table state change
+    activeWiseStatusFilter = null;
+    pendingWiseStatusFilter = null;
+    currentPage = 1;
+    renderPage();
+  }
+
+
+
+  // ─── Filter drawer    // ─── Filter drawer ────────────────────────────────────────────────────────
+  function openFilterDrawer() {
+    const overlay = document.getElementById('filter-drawer-overlay');
+    const drawer  = document.getElementById('filter-drawer');
+    overlay.classList.remove('hidden');
+    overlay.classList.add('is-open');
+    drawer.classList.remove('hidden');
+    // rAF ensures display is active before transition starts
+    requestAnimationFrame(() => drawer.classList.add('is-open'));
+  }
+
+  function closeFilterDrawer() {
+    const overlay = document.getElementById('filter-drawer-overlay');
+    const drawer  = document.getElementById('filter-drawer');
+    overlay.classList.remove('is-open');
+    drawer.classList.remove('is-open');
+    closeAllDrawerDropdowns();
+    // Wait for transition to finish, then fully hide
+    setTimeout(() => {
+      if (!drawer.classList.contains('is-open')) {
+        overlay.classList.add('hidden');
+        drawer.classList.add('hidden');
+      }
+    }, 230);
+  }
+
+  // ─── Wise update status dropdown ─────────────────────────────────────────
+  function toggleWiseStatusDropdown(evt) {
+    evt.stopPropagation();
+    const menu    = document.getElementById('wise-status-menu');
+    const chevron = document.getElementById('wise-status-chevron');
+    const isOpen  = !menu.classList.contains('hidden');
+    closeAllDrawerDropdowns();
+    if (!isOpen) {
+      menu.classList.remove('hidden');
+      chevron.textContent = 'expand_less';
+    }
+  }
+
+  function selectWiseStatus(el, value) {
+    el.closest('.drawer-dropdown-menu').querySelectorAll('.drawer-dropdown-item')
+      .forEach(item => item.classList.remove('selected'));
+    el.classList.add('selected');
+    const valueEl = document.getElementById('wise-status-value');
+    valueEl.textContent = value;
+    // Mark as active/selected (black text)
+    const isDefault = (value === 'Show All' || value === 'All');
+    valueEl.classList.toggle('has-value', !isDefault);
+    closeAllDrawerDropdowns();
+    // Stage the filter but do NOT apply yet — user must click Apply
+    const statusMap = {
+      'Updated': 'updated', 'Pending': 'pending',
+      'Deprecated': 'deprecated', 'Not applicable': 'na',
+    };
+    pendingWiseStatusFilter = statusMap[value] || null;
+  }
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  //  PAGINATION + FILTER ENGINE
+  // ═══════════════════════════════════════════════════════════════════════════
+  let currentPage = 1;
+  let rowsPerPage = 10;
+  let activeWiseStatusFilter = null;  // applied — drives renderPage()
+  let pendingWiseStatusFilter = null; // staged — set on selection, applied on button
+
+  function getWiseStatusFromCell(td) {
+    if (!td) return null;
+    const attr = td.dataset.wiseStatus; // 'pending' or 'deprecated'
+    if (attr) return attr;
+    if (td.querySelector('.icon-status-updated'))  return 'updated';
+    if (td.querySelector('.label-status-na'))       return 'na';
+    return null;
+  }
+
+  function getAllTableRows() {
+    return Array.from(document.querySelectorAll('#members-tbody tr[data-row]'));
+  }
+
+  function getFilteredRows() {
+    const rows = getAllTableRows();
+    if (!activeWiseStatusFilter) return rows;
+    return rows.filter(tr => {
+      const wiseCell = tr.querySelector('td.col-wiseupdate');
+      return getWiseStatusFromCell(wiseCell) === activeWiseStatusFilter;
+    });
+  }
+
+  function renderPage() {
+    const allRows    = getAllTableRows();
+    const filtered   = getFilteredRows();
+    const start      = (currentPage - 1) * rowsPerPage;
+    const end        = start + rowsPerPage;
+    const visibleSet = new Set(filtered.slice(start, end).map(r => r.dataset.row));
+
+    allRows.forEach(tr => {
+      tr.style.display = visibleSet.has(tr.dataset.row) ? '' : 'none';
+    });
+
+    updatePaginationControls(filtered.length);
+  }
+
+  function updatePaginationControls(total) {
+    const totalPages = Math.ceil(total / rowsPerPage) || 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    const s = total === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1;
+    const e = Math.min(currentPage * rowsPerPage, total);
+
+    const infoEl = document.getElementById('pagination-info-text');
+    if (infoEl) infoEl.textContent = `Showing ${s}\u2013${e} of ${total}`;
+
+    const pagesEl = document.getElementById('pagination-pages');
+    if (!pagesEl) return;
+    pagesEl.innerHTML = '';
+
+    // Prev button
+    if (currentPage > 1) {
+      const prev = document.createElement('button');
+      prev.className = 'page-next';
+      prev.innerHTML = '<span class="icon" style="font-size:16px;color:#6B7280;">chevron_left</span> Prev';
+      prev.onclick = () => goToPage(currentPage - 1);
+      pagesEl.appendChild(prev);
+    }
+
+    // Page number buttons (show max 5 around current)
+    const maxBtns = 5;
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage   = Math.min(totalPages, startPage + maxBtns - 1);
+    if (endPage - startPage < maxBtns - 1) startPage = Math.max(1, endPage - maxBtns + 1);
+
+    for (let p = startPage; p <= endPage; p++) {
+      const btn = document.createElement('button');
+      btn.className = 'page-btn' + (p === currentPage ? ' active' : '');
+      btn.textContent = p;
+      btn.onclick = () => goToPage(p);
+      pagesEl.appendChild(btn);
+    }
+
+    // Next button
+    if (currentPage < totalPages) {
+      const next = document.createElement('button');
+      next.className = 'page-next';
+      next.innerHTML = 'Next <span class="icon" style="font-size:16px;color:#6B7280;">chevron_right</span>';
+      next.onclick = () => goToPage(currentPage + 1);
+      pagesEl.appendChild(next);
+    }
+  }
+
+  function goToPage(page) {
+    currentPage = page;
+    renderPage();
+  }
+
+  function changeRowsPerPage(val) {
+    rowsPerPage = parseInt(val, 10);
+    currentPage = 1;
+    renderPage();
+  }
+
+  function resetFilter() {
+    activeWiseStatusFilter = null;
+    currentPage = 1;
+    renderPage();
+  }
+
+  function applyFilters() {
+    activeWiseStatusFilter = pendingWiseStatusFilter;
+    currentPage = 1;
+    renderPage();
+    closeFilterDrawer();
+  }
+
+  function clearAllFilters() {
+    activeWiseStatusFilter = null;
+    pendingWiseStatusFilter = null;
+    // Reset dropdown display
+    const valueEl = document.getElementById('wise-status-value');
+    if (valueEl) { valueEl.textContent = 'Show All'; valueEl.classList.remove('has-value'); }
+    // Deselect all drawer items
+    document.querySelectorAll('.drawer-dropdown-item').forEach(i => i.classList.remove('selected'));
+    currentPage = 1;
+    renderPage();
+  }
+
+  function closeAllDrawerDropdowns() {
+    document.querySelectorAll('.drawer-dropdown-menu').forEach(m => m.classList.add('hidden'));
+    document.querySelectorAll('#wise-status-chevron').forEach(c => c.textContent = 'expand_more');
+  }
+
+  // Close drawer dropdowns when clicking outside
+  document.addEventListener('click', (evt) => {
+    if (!evt.target.closest('.drawer-dropdown-wrapper')) {
+      closeAllDrawerDropdowns();
+    }
+  });
+
+  // ─── Pre-launch / Post-launch mode ────────────────────────────────────────
+  let isPrelaunch = true; // default: pre-launch (users arrive from email)
+
+  function applyMode() {
+    const badge    = document.getElementById('mode-badge');
+    const postCard = document.getElementById('wise-update-card-post');
+    const preCard  = document.getElementById('prelaunch-card');
+
+    if (isPrelaunch) {
+      if (badge)    { badge.textContent = 'PRE'; badge.style.background = '#fdf6b2'; badge.style.color = '#9f580a'; }
+      if (postCard) postCard.style.display = 'none';
+      if (preCard)  preCard.style.display  = 'flex';
+    } else {
+      if (badge)    { badge.textContent = 'POST'; badge.style.background = '#d4edff'; badge.style.color = '#0a4b96'; }
+      if (postCard) postCard.style.display = 'flex';
+      if (preCard)  preCard.style.display  = 'none';
+    }
+
+    // Swap "Wise update" status cells — PayPal "Not applicable" rows stay untouched
+    document.querySelectorAll('td.col-wiseupdate').forEach(cell => {
+      const isNA = cell.innerHTML.includes('Not applicable') || cell.innerHTML.includes('do_not_disturb');
+      if (isNA) return;
+
+      if (isPrelaunch) {
+        if (!cell.dataset.postContent) cell.dataset.postContent = cell.innerHTML;
+        cell.innerHTML = '<div class="status-cell"><p class="label-status-starting">Starting on Jun 4</p></div>';
+      } else {
+        if (cell.dataset.postContent) cell.innerHTML = cell.dataset.postContent;
+      }
+    });
+  }
+
+  // Clicking the column header still toggles (dev convenience)
+  function toggleMode() {
+    isPrelaunch = !isPrelaunch;
+    applyMode();
+  }
+
+  // Clicking the pre-launch card title → go to post-launch
+  function switchToPostLaunch() {
+    isPrelaunch = false;
+    applyMode();
+  }
+
+  // Clicking the post-launch card title → go back to pre-launch
+  function switchToPreLaunch() {
+    isPrelaunch = true;
+    applyMode();
+  }
+
+  // ─── Wise logo → back to email (event delegation, covers static + dynamic rows) ──
+  document.addEventListener('click', function(e) {
+    const img = e.target.closest('img[alt="Wise"]');
+    if (img) {
+      e.stopPropagation();
+      window.location.href = 'wise-email.html';
+    }
+  });
+
+  // Make all Wise logo images look clickable on hover
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('img[alt="Wise"]').forEach(function(img) {
+      img.style.cursor = 'pointer';
+    });
+  });
+
+  // Initialise on load — start in pre-launch
+  document.addEventListener('DOMContentLoaded', function() {
+    applyMode();
+  });
+
+  // ─── Tooltip on ⓘ (pre-launch card) ───────────────────────────────────────
+  (function() {
+    document.addEventListener('DOMContentLoaded', function() {
+      const btn     = document.getElementById('pl-info-btn');
+      const tooltip = document.getElementById('pl-tooltip');
+      if (!btn || !tooltip) return;
+
+      btn.addEventListener('mouseenter', () => tooltip.classList.add('visible'));
+      btn.addEventListener('mouseleave', () => tooltip.classList.remove('visible'));
+      btn.addEventListener('focus',      () => tooltip.classList.add('visible'));
+      btn.addEventListener('blur',       () => tooltip.classList.remove('visible'));
+    });
+  })();
+
+  // ─── Popover on "70 members" ───────────────────────────────────────────────
+  (function() {
+    document.addEventListener('DOMContentLoaded', function() {
+      const btn     = document.getElementById('pl-members-btn');
+      const popover = document.getElementById('pl-popover');
+      if (!btn || !popover) return;
+
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        popover.classList.toggle('visible');
+      });
+
+      document.addEventListener('click', function(e) {
+        if (!btn.contains(e.target)) {
+          popover.classList.remove('visible');
+        }
+      });
+    });
+  })();
+
+</script>
+</body>
+</html>

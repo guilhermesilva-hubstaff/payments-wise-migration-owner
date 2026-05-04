@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Inbox – Hubstaff Mail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@18,400,0,0&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    font-family: 'Roboto', sans-serif;
+    background: #f9fafb;
+    color: #111827;
+    overflow: hidden;
+  }
+
+  .icon {
+    font-family: 'Material Symbols Rounded', sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 18;
+    line-height: 1;
+    display: inline-block;
+    white-space: nowrap;
+    user-select: none;
+  }
+  .icon-fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 18; }
+
+  /* ══════════════════════════════════════════════════════════
+     APP SHELL
+  ══════════════════════════════════════════════════════════ */
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  /* ── Global topbar ── */
+  .topbar {
+    height: 56px;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    padding: 0 16px 0 0;
+    gap: 0;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+
+  .topbar-brand {
+    width: 220px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 20px;
+    flex-shrink: 0;
+    border-right: 1px solid #e5e7eb;
+    height: 100%;
+  }
+
+  .brand-logo {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #2aa7ff 0%, #0168dd 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .brand-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+    letter-spacing: -0.2px;
+  }
+
+  .brand-app {
+    font-size: 11px;
+    font-weight: 400;
+    color: #9ca3af;
+    margin-top: -1px;
+  }
+
+  .topbar-search {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f3f4f6;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 7px 12px;
+    margin: 0 20px;
+    max-width: 480px;
+    cursor: text;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .topbar-search:focus-within {
+    background: #fff;
+    border-color: #2aa7ff;
+  }
+  .topbar-search input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    color: #374151;
+    width: 100%;
+  }
+  .topbar-search input::placeholder { color: #9ca3af; }
+
+  .topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+  }
+
+  .topbar-icon-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    position: relative;
+    transition: background 0.12s;
+  }
+  .topbar-icon-btn:hover { background: #f3f4f6; }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    margin-left: 4px;
+  }
+
+  /* ── Main content (below topbar) ── */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     LEFT SIDEBAR NAV
+  ══════════════════════════════════════════════════════════ */
+  .sidebar {
+    width: 220px;
+    background: #fff;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    padding: 12px 0;
+    overflow-y: auto;
+  }
+
+  .sidebar-compose {
+    margin: 4px 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #2aa7ff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, box-shadow 0.15s;
+    box-shadow: 0 1px 3px rgba(42,167,255,0.3);
+  }
+  .sidebar-compose:hover { background: #1a8fe0; box-shadow: 0 2px 6px rgba(42,167,255,0.4); }
+
+  .sidebar-section-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #9ca3af;
+    padding: 8px 16px 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    margin: 1px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #374151;
+    transition: background 0.1s;
+    position: relative;
+    border: none;
+    background: none;
+    width: calc(100% - 16px);
+    text-align: left;
+    font-family: 'Roboto', sans-serif;
+  }
+  .nav-item:hover { background: #f3f4f6; }
+  .nav-item.active {
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-weight: 500;
+  }
+  .nav-item.active .nav-icon { color: #2aa7ff; }
+
+  .nav-icon {
+    font-size: 18px;
+    color: #6b7280;
+    flex-shrink: 0;
+    line-height: 18px;
+  }
+  .nav-item.active .nav-icon { color: #2aa7ff; }
+
+  .nav-label { flex: 1; }
+
+  .nav-badge {
+    background: #2aa7ff;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 1px 6px;
+    min-width: 18px;
+    text-align: center;
+    line-height: 16px;
+  }
+
+  .nav-badge-gray {
+    background: #e5e7eb;
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 10px;
+    padding: 1px 6px;
+    min-width: 18px;
+    text-align: center;
+    line-height: 16px;
+  }
+
+  .sidebar-divider {
+    height: 1px;
+    background: #f3f4f6;
+    margin: 8px 16px;
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     INBOX LIST PANEL
+  ══════════════════════════════════════════════════════════ */
+  .inbox-panel {
+    width: 320px;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    background: #fff;
+  }
+
+  .inbox-header {
+    padding: 14px 16px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .inbox-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .inbox-tools {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .inbox-list {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .inbox-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f3f4f6;
+    cursor: pointer;
+    transition: background 0.1s;
+    position: relative;
+  }
+  .inbox-item:hover { background: #f9fafb; }
+  .inbox-item.selected { background: #eff6ff; }
+  .inbox-item.selected::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #2aa7ff;
+    border-radius: 0 2px 2px 0;
+  }
+
+  .inbox-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .inbox-item-body { flex: 1; min-width: 0; }
+
+  .inbox-item-row1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .inbox-sender {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .inbox-item:not(.unread) .inbox-sender { font-weight: 400; color: #374151; }
+
+  .inbox-time {
+    font-size: 11px;
+    color: #9ca3af;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .inbox-item.unread .inbox-time { color: #2aa7ff; font-weight: 500; }
+
+  .inbox-subject {
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 1px;
+  }
+  .inbox-item:not(.unread) .inbox-subject { font-weight: 400; color: #6b7280; }
+
+  .inbox-preview {
+    font-size: 12px;
+    color: #9ca3af;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 1px;
+  }
+
+  .unread-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #2aa7ff;
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     EMAIL READING PANE
+  ══════════════════════════════════════════════════════════ */
+  .email-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #f9fafb;
+  }
+
+  .email-pane-toolbar {
+    height: 48px;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .toolbar-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 6px;
+    background: none;
+    font-family: 'Roboto', sans-serif;
+    font-size: 13px;
+    color: #6b7280;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .toolbar-btn:hover { background: #f3f4f6; color: #374151; }
+  .toolbar-btn .icon { font-size: 16px; }
+
+  .toolbar-sep {
+    width: 1px;
+    height: 20px;
+    background: #e5e7eb;
+    margin: 0 4px;
+  }
+
+  .email-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Email subject header (above the card) ── */
+  .email-subject-header {
+    width: 100%;
+    max-width: 760px;
+    margin-bottom: 16px;
+  }
+
+  .email-subject-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #111827;
+    line-height: 30px;
+    margin-bottom: 10px;
+  }
+
+  .email-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .email-meta-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2aa7ff, #0168dd);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .email-meta-info { flex: 1; }
+
+  .email-meta-sender {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .email-meta-addr {
+    font-size: 12px;
+    color: #9ca3af;
+  }
+
+  .email-meta-date {
+    font-size: 12px;
+    color: #9ca3af;
+  }
+
+  .email-meta-actions {
+    display: flex;
+    gap: 2px;
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     EMAIL CARD — Figma node 1034:335461, pixel-perfect
+  ══════════════════════════════════════════════════════════ */
+  .email-card {
+    width: 100%;
+    max-width: 760px;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+  }
+
+  .email-logo {
+    width: 124px;
+    height: 27px;
+    display: block;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+
+  .email-content {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  /* Title block */
+  .email-title-row { display: flex; flex-direction: column; gap: 4px; }
+
+  .email-heading-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .email-heading {
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 32px;
+    color: #111827;
+  }
+
+  .pill-warning {
+    display: inline-flex;
+    align-items: center;
+    background: #fdf6b2;
+    border-radius: 9999px;
+    padding: 4px 0;
+    flex-shrink: 0;
+  }
+  .pill-warning-icon {
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    padding-right: 2px;
+  }
+  .pill-warning-text {
+    padding: 0 12px 0 4px;
+    font-size: 14px;
+    line-height: 20px;
+    color: #9f580a;
+  }
+  .pill-warning-text strong { font-weight: 500; }
+
+  .email-intro {
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 28px;
+    color: #111827;
+  }
+
+  /* Sections */
+  .email-sections { display: flex; flex-direction: column; gap: 20px; }
+  .email-section  { display: flex; flex-direction: column; gap: 4px; }
+
+  .sec-heading {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 20px;
+    color: #111827;
+  }
+
+  .sec-body {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    color: #4b5563;
+  }
+  .sec-body strong { font-weight: 600; color: #111827; }
+  .sec-body b      { font-weight: 500; color: #111827; }
+
+  .sec-body ul {
+    list-style: disc;
+    padding-left: 24px;
+    margin: 0;
+  }
+  .sec-body ul li { line-height: 24px; }
+  .sec-body p + ul { margin-top: 2px; }
+  .sec-body ul + p { margin-top: 4px; }
+
+  .email-divider {
+    width: 100%;
+    height: 1px;
+    background: #e5e7eb;
+  }
+
+  /* Tracking row with CTA */
+  .tracking-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  .tracking-text { flex: 1 0 0; min-width: 0; }
+  .tracking-text .sec-body { margin-top: 4px; color: #6b7280; }
+  .tracking-text .sec-body .inline-bold { color: #111827; font-weight: 400; }
+
+  .btn-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #2aa7ff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    color: #fff;
+    white-space: nowrap;
+    cursor: pointer;
+    text-decoration: none;
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: background 0.15s, box-shadow 0.15s;
+    box-shadow: 0 1px 3px rgba(42,167,255,0.3);
+  }
+  .btn-cta:hover { background: #1a8fe0; box-shadow: 0 2px 6px rgba(42,167,255,0.4); }
+
+  /* Help links */
+  .help-links { list-style: disc; padding-left: 24px; display: flex; flex-direction: column; gap: 4px; }
+  .help-links li a {
+    font-size: 16px;
+    line-height: 20px;
+    color: #0168dd;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .help-links li a:hover { color: #0150b3; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ══════════ TOPBAR ══════════ -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-logo">
+        <span class="icon" style="font-size:16px;color:#fff;">mail</span>
+      </div>
+      <div>
+        <div class="brand-name">Hubstaff</div>
+        <div class="brand-app">Mail</div>
+      </div>
+    </div>
+
+    <div class="topbar-search">
+      <span class="icon" style="font-size:18px;color:#9ca3af;">search</span>
+      <input type="text" placeholder="Search mail…" />
+    </div>
+
+    <div class="topbar-actions">
+      <button class="topbar-icon-btn" title="Help">
+        <span class="icon" style="font-size:20px;">help_outline</span>
+      </button>
+      <button class="topbar-icon-btn" title="Settings">
+        <span class="icon" style="font-size:20px;">settings</span>
+      </button>
+      <button class="topbar-icon-btn" title="Notifications" style="position:relative;">
+        <span class="icon" style="font-size:20px;">notifications_none</span>
+        <span style="position:absolute;top:6px;right:6px;width:7px;height:7px;background:#ef4444;border-radius:50%;border:1.5px solid #fff;"></span>
+      </button>
+      <div class="avatar" title="Owner">O</div>
+    </div>
+  </header>
+
+  <!-- ══════════ MAIN ══════════ -->
+  <div class="main">
+
+    <!-- ══════════ LEFT SIDEBAR ══════════ -->
+    <nav class="sidebar">
+      <button class="sidebar-compose">
+        <span class="icon" style="font-size:18px;">edit</span>
+        Compose
+      </button>
+
+      <div class="sidebar-section-label">Mailbox</div>
+
+      <button class="nav-item active">
+        <span class="icon icon-fill nav-icon">inbox</span>
+        <span class="nav-label">Inbox</span>
+        <span class="nav-badge">3</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="icon nav-icon">send</span>
+        <span class="nav-label">Sent</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="icon nav-icon">drafts</span>
+        <span class="nav-label">Drafts</span>
+        <span class="nav-badge-gray">2</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="icon nav-icon">star_border</span>
+        <span class="nav-label">Starred</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="icon nav-icon">schedule</span>
+        <span class="nav-label">Snoozed</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="icon nav-icon">label_important</span>
+        <span class="nav-label">Important</span>
+      </button>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section-label">Categories</div>
+
+      <button class="nav-item">
+        <span class="icon nav-icon" style="color:#2aa7ff;">payments</span>
+        <span class="nav-label">Payroll</span>
+        <span class="nav-badge">1</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="icon nav-icon" style="color:#7c3aed;">group</span>
+        <span class="nav-label">Team</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="icon nav-icon" style="color:#059669;">security</span>
+        <span class="nav-label">Compliance</span>
+      </button>
+
+      <button class="nav-item">
+        <span class="icon nav-icon">delete_outline</span>
+        <span class="nav-label">Trash</span>
+      </button>
+
+      <div class="sidebar-divider"></div>
+
+      <button class="nav-item">
+        <span class="icon nav-icon">add</span>
+        <span class="nav-label">New label</span>
+      </button>
+    </nav>
+
+    <!-- ══════════ INBOX LIST ══════════ -->
+    <div class="inbox-panel">
+      <div class="inbox-header">
+        <span class="inbox-title">Inbox</span>
+        <div class="inbox-tools">
+          <button class="topbar-icon-btn"><span class="icon" style="font-size:18px;">filter_list</span></button>
+          <button class="topbar-icon-btn"><span class="icon" style="font-size:18px;">refresh</span></button>
+        </div>
+      </div>
+
+      <div class="inbox-list">
+
+        <!-- Selected / open email -->
+        <div class="inbox-item selected unread">
+          <div class="inbox-avatar" style="background:linear-gradient(135deg,#2aa7ff,#0168dd);">H</div>
+          <div class="inbox-item-body">
+            <div class="inbox-item-row1">
+              <span class="inbox-sender">Hubstaff</span>
+              <span class="inbox-time">3:41 PM</span>
+            </div>
+            <div class="inbox-subject">Upcoming change: Wise integration migration for your team members</div>
+            <div class="inbox-preview">We're writing to give you a heads-up about an upcoming…</div>
+          </div>
+          <div class="unread-dot"></div>
+        </div>
+
+        <div class="inbox-item">
+          <div class="inbox-avatar" style="background:#7c3aed;">P</div>
+          <div class="inbox-item-body">
+            <div class="inbox-item-row1">
+              <span class="inbox-sender">Payroll Team</span>
+              <span class="inbox-time">Yesterday</span>
+            </div>
+            <div class="inbox-subject">Your Sep payroll run is ready</div>
+            <div class="inbox-preview">Review and approve before the deadline on Sep 29…</div>
+          </div>
+        </div>
+
+        <div class="inbox-item unread">
+          <div class="inbox-avatar" style="background:#059669;">S</div>
+          <div class="inbox-item-body">
+            <div class="inbox-item-row1">
+              <span class="inbox-sender">Security</span>
+              <span class="inbox-time">Mon</span>
+            </div>
+            <div class="inbox-subject">New login from San Francisco</div>
+            <div class="inbox-preview">We noticed a sign-in from a new device…</div>
+          </div>
+          <div class="unread-dot"></div>
+        </div>
+
+        <div class="inbox-item">
+          <div class="inbox-avatar" style="background:#d97706;">T</div>
+          <div class="inbox-item-body">
+            <div class="inbox-item-row1">
+              <span class="inbox-sender">Team Updates</span>
+              <span class="inbox-time">Mon</span>
+            </div>
+            <div class="inbox-subject">Weekly activity summary</div>
+            <div class="inbox-preview">Here's what happened in your organization last week…</div>
+          </div>
+        </div>
+
+        <div class="inbox-item unread">
+          <div class="inbox-avatar" style="background:#dc2626;">W</div>
+          <div class="inbox-item-body">
+            <div class="inbox-item-row1">
+              <span class="inbox-sender">Wise</span>
+              <span class="inbox-time">Sun</span>
+            </div>
+            <div class="inbox-subject">Action required: verify your account</div>
+            <div class="inbox-preview">To continue using Wise for payroll, please verify…</div>
+          </div>
+          <div class="unread-dot"></div>
+        </div>
+
+        <div class="inbox-item">
+          <div class="inbox-avatar" style="background:#0891b2;">B</div>
+          <div class="inbox-item-body">
+            <div class="inbox-item-row1">
+              <span class="inbox-sender">Billing</span>
+              <span class="inbox-time">Sep 5</span>
+            </div>
+            <div class="inbox-subject">Invoice #4821 – August 2025</div>
+            <div class="inbox-preview">Your invoice for August is now available…</div>
+          </div>
+        </div>
+
+        <div class="inbox-item">
+          <div class="inbox-avatar" style="background:#6d28d9;">C</div>
+          <div class="inbox-item-body">
+            <div class="inbox-item-row1">
+              <span class="inbox-sender">Compliance</span>
+              <span class="inbox-time">Sep 3</span>
+            </div>
+            <div class="inbox-subject">KYC reminder – 3 members pending</div>
+            <div class="inbox-preview">The following team members haven't completed KYC…</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════ EMAIL READING PANE ══════════ -->
+    <div class="email-pane">
+      <!-- Toolbar -->
+      <div class="email-pane-toolbar">
+        <button class="toolbar-btn">
+          <span class="icon">arrow_back</span>
+          Back
+        </button>
+        <div class="toolbar-sep"></div>
+        <button class="toolbar-btn"><span class="icon">archive</span> Archive</button>
+        <button class="toolbar-btn"><span class="icon">delete_outline</span> Delete</button>
+        <button class="toolbar-btn"><span class="icon">mark_email_unread</span> Mark unread</button>
+        <button class="toolbar-btn"><span class="icon">label_outline</span> Label</button>
+        <div class="toolbar-sep"></div>
+        <button class="toolbar-btn" style="margin-left:auto;"><span class="icon">more_horiz</span></button>
+      </div>
+
+      <!-- Scroll area -->
+      <div class="email-scroll">
+
+        <!-- Subject + sender meta above the card -->
+        <div class="email-subject-header">
+          <h1 class="email-subject-title">Upcoming change: Wise integration migration for your team members</h1>
+          <div class="email-meta-row">
+            <div class="email-meta-avatar">H</div>
+            <div class="email-meta-info">
+              <div class="email-meta-sender">Hubstaff <span style="font-weight:400;color:#9ca3af;">&lt;no-reply@hubstaff.com&gt;</span></div>
+              <div class="email-meta-addr">To: Owner · Sep 8, 2025, 3:41 PM</div>
+            </div>
+            <div class="email-meta-actions">
+              <button class="topbar-icon-btn"><span class="icon" style="font-size:18px;">star_border</span></button>
+              <button class="topbar-icon-btn"><span class="icon" style="font-size:18px;">reply</span></button>
+              <button class="topbar-icon-btn"><span class="icon" style="font-size:18px;">more_vert</span></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── EMAIL CARD — Figma 1034:335461 pixel-perfect ─── -->
+        <div class="email-card">
+
+          <!-- Hubstaff logo -->
+          <img
+            src="https://www.figma.com/api/mcp/asset/c0005088-0ebf-4650-bfe9-666f5b1b92e7"
+            alt="Hubstaff"
+            class="email-logo"
+            onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<div style=\'display:flex;align-items:center;gap:8px;\'><div style=\'width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,#2aa7ff,#0168dd);display:flex;align-items:center;justify-content:center;\'><span style=\'font-family:Material Symbols Rounded,sans-serif;font-size:16px;color:#fff;\'>&#xe158;</span></div><span style=\'font-size:16px;font-weight:700;color:#111827;\'>Hubstaff</span></div>');"
+          />
+
+          <div class="email-content">
+
+            <!-- ── Title + intro ── -->
+            <div class="email-title-row">
+              <div class="email-heading-row">
+                <h2 class="email-heading">Wise integration migration</h2>
+                <div class="pill-warning">
+                  <div class="pill-warning-icon">
+                    <span class="icon" style="font-size:18px;color:#9f580a;">warning</span>
+                  </div>
+                  <span class="pill-warning-text"><strong>June 4</strong> (Start date)</span>
+                </div>
+              </div>
+              <p class="email-intro">
+                We're writing to give you a heads-up about an upcoming change that will affect some members (aka contractors) of your organization.
+              </p>
+            </div>
+
+            <!-- ── Body sections ── -->
+            <div class="email-sections">
+
+              <div class="email-section">
+                <p class="sec-body">
+                  <strong>Hubstaff is migrating to a new version of its Wise integration.</strong><br/>
+                  The current version will be deprecated on [date], and any members who currently receive payments via Wise will need to complete a one-time migration to continue receiving payments without interruption.
+                </p>
+              </div>
+
+              <div class="email-section">
+                <p class="sec-heading">Why we are doing it</p>
+                <div class="sec-body">
+                  <p>The new integration brings number of benefits, including:</p>
+                  <ul>
+                    <li>Your team members will be able to receive payments directly to their bank account — no Wise account required</li>
+                    <li>They will no longer need to accept every transaction</li>
+                    <li>New integration opens up payouts to the new locations</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="email-section">
+                <p class="sec-heading">How we will notify your team members</p>
+                <div class="sec-body">
+                  <p>We'll reach out to affected members through multiple channels:</p>
+                  <ul>
+                    <li>In-app notifications in the Hubstaff desktop app and web app, starting on [date]</li>
+                    <li>A follow-up email for any members who haven't completed the migration after approximately two weeks</li>
+                  </ul>
+                  <p>The migration itself takes <b>less than 10 minutes</b> and only needs to be done once.</p>
+                </div>
+              </div>
+
+              <div class="email-section">
+                <p class="sec-body">
+                  <strong>No action is required from you</strong><br/>
+                  Your members will be guided through the migration directly.
+                </p>
+              </div>
+
+              <div class="email-divider"></div>
+
+              <!-- Tracking + CTA -->
+              <div class="tracking-row">
+                <div class="tracking-text">
+                  <p class="sec-heading">Tracking progress from your end</p>
+                  <p class="sec-body">
+                    Once migration starts, you can track your team's progress on the
+                    <span class="inline-bold">Manage Payroll page</span>,
+                    where each member's status is visible at a glance.
+                  </p>
+                </div>
+                <a href="wise-integrations.html" class="btn-cta">
+                  Track migration progress
+                  <span class="icon" style="font-size:18px;color:#fff;">arrow_forward</span>
+                </a>
+              </div>
+
+              <div class="email-divider"></div>
+
+              <div class="email-section">
+                <p class="sec-heading">Need help?</p>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                  <p class="sec-body" style="color:#6b7280;">
+                    If you or your members have questions about the migration, the following resources are available:
+                  </p>
+                  <ul class="help-links">
+                    <li><a href="#">View the FAQ</a></li>
+                    <li><a href="#">Contact our support team</a></li>
+                  </ul>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom padding -->
+        <div style="height:40px;"></div>
+      </div>
+    </div>
+
+  </div><!-- /.main -->
+</div><!-- /.app -->
+</body>
+</html>
