@@ -3,7 +3,7 @@
 Static HTML prototype of the Wise payout-method migration flow for owners.
 
 ## Running
-https://guilhermesilva-hubstaff.github.io/payments-wise-migration-owners/
+https://guilhermesilva-hubstaff.github.io/payments-wise-migration-owner
 
 ## Files
 
